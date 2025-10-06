@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# HTTPS yönlendirmesi (opsiyonel)
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# React Router için
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# Subdomain kontrolü ve yönlendirme
+RewriteCond %{HTTP_HOST} ^([^.]+)\.yourdomain\.com$ [NC]
+RewriteRule ^(.*)$ http://localhost:3006/$1 [P,L]
+
+# Ana domain için
+RewriteCond %{HTTP_HOST} ^yourdomain\.com$ [NC]
+RewriteRule ^(.*)$ http://localhost:3006/$1 [P,L]
+

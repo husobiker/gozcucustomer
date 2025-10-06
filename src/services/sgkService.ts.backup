@@ -1,0 +1,6311 @@
+// SGK Web Servis Entegrasyonu - TAM ENTEGRASYON
+// 4A Sigortalı İşe Giriş - İşten Ayrılış API Servisi
+// Belgedeki TÜM metotlar ve parametreler dahil
+
+export interface SgkCredentials {
+  kullaniciAdi: string;
+  sifre: string;
+  isyeriSicil: string; // 26 haneli işyeri sicil
+  sistemSifre?: string;
+  isyeriTuru?: string;
+}
+
+// Kullanıcı Bilgileri (Her metot için gerekli)
+export interface KullaniciBilgileri {
+  kullaniciAdi: string;
+  isyeriSifre: string;
+  isyeriSicil: string;
+  hataKodu: number;
+  hataAciklamasi: string;
+}
+
+// Sigortalı İşe Giriş - TAM PARAMETRELER
+export interface SigortaliIseGiris {
+  tckimlikNo: string; // 11 haneli TC kimlik no
+  ad: string; // 18 karakter max
+  soyad: string; // 18 karakter max
+  giristarihi: string; // dd.MM.yyyy formatında
+  sigortaliTuru: number; // Sigorta kolu (0-37)
+  istisnaKodu?: string; // İstisna kodu (1-9)
+  gorevkodu: string; // Görev kodu (01-06)
+  meslekkodu?: string; // İşkur meslek kodu (8 karakter)
+  csgbiskolu?: string; // ÇSGB iş kolu (01-20)
+  eskihukumlu?: string; // Eski hükümlü (E/H)
+  ozurlu?: string; // Engelli (E/H)
+  ogrenimkodu?: string; // Öğrenim kodu (0-7)
+  mezuniyetbolumu?: string; // Mezuniyet bölümü (100 karakter max)
+  mezuniyetyili?: number; // Mezuniyet yılı
+  kismiSureliCalisiyormu?: string; // Kısmi süreli çalışma (E/H)
+  kismiSureliCalismaGunSayisi?: number; // Kısmi süreli gün sayısı (1-29)
+}
+
+// Sigortalı İşten Çıkış - TAM PARAMETRELER
+export interface SigortaliIstenCikis {
+  tckimlikNo: string; // 11 haneli TC kimlik no
+  ad: string; // 18 karakter max
+  soyad: string; // 18 karakter max
+  istenCikisTarihi: string; // dd.MM.yyyy formatında
+  istenCikisNedeni: string; // İşten çıkış nedeni (01-37)
+  meslekkodu?: string; // İşkur meslek kodu (8 karakter)
+  csgbiskolu?: string; // ÇSGB iş kolu (01-20)
+  bulundugumuzDonem?: BulundugumuzDonem; // Bulunduğumuz dönem bilgileri
+  oncekiDonem?: OncekiDonem; // Önceki dönem bilgileri
+}
+
+// Bulunduğumuz Dönem Bilgileri
+export interface BulundugumuzDonem {
+  belgeturu: string; // Belge türü (01-51)
+  hakedilenucret: number; // Hakedilen ücret
+  primikramiye?: number; // Prim ikramiye tutarı
+  eksikgunsayisi?: number; // Eksik gün sayısı (1-31)
+  eksikgunnedeni?: string; // Eksik gün nedeni (00-24)
+}
+
+// Önceki Dönem Bilgileri
+export interface OncekiDonem {
+  belgeturu?: string; // Belge türü (01-51)
+  hakedilenucret?: number; // Hakedilen ücret
+  primikramiye?: number; // Prim ikramiye tutarı
+  eksikgunsayisi?: number; // Eksik gün sayısı (1-31)
+  eksikgunnedeni?: string; // Eksik gün nedeni (00-24)
+}
+
+// SGK İşe Giriş Parametreleri
+export interface Sgk4aIseGirisParametre {
+  kullaniciBilgileri: KullaniciBilgileri;
+  sigortaliIseGirisListesi: SigortaliIseGiris[];
+  ayniIsverenFarkliIsyeriNakil?: string; // Nakil durumu (E/H)
+  nakilGeldigiIsyeriSicil?: string; // Nakil geldiği işyeri sicil (26 hane)
+}
+
+// SGK İşten Çıkış Parametreleri
+export interface Sgk4aIstenCikisParametre {
+  kullaniciBilgileri: KullaniciBilgileri;
+  sigortaliIstenCikisListesi: SigortaliIstenCikis[];
+  nakilGidecegiIsyeriSicil?: string; // Nakil gideceği işyeri sicil (26 hane)
+}
+
+// SGK İşe Giriş Sonuçları
+export interface SigortaliIseGirisSonuc {
+  islemSonucu: number; // 0, -1, -101
+  islemAciklamasi: string;
+  referansKodu?: number;
+  adSoyad: string;
+  giristarihi: string;
+  sicilno?: number;
+  tckimlikNo: string;
+}
+
+// SGK İşten Çıkış Sonuçları
+export interface SigortaliIstenCikisSonuc {
+  islemSonucu: number; // 0, -1, -101
+  islemAciklamasi: string;
+  tckimlikNo: string;
+  sicilno?: number;
+  adSoyad: string;
+  referansKodu?: number;
+  istenCikisTarihi: string;
+  isyeriSicil?: string;
+}
+
+// SGK İşlem Sonuçları
+export interface SigortaliIseGirisIslemSonuclari {
+  hataKodu: number; // 0, -1, -101
+  hataAciklamasi: string;
+  sigortaliIseGirisSonuc: SigortaliIseGirisSonuc[];
+}
+
+export interface SigortaliIstenCikisIslemSonuclari {
+  hataKodu: number; // 0, -1, -101
+  hataAciklamasi: string;
+  sigortaliIstenCikisSonuc: SigortaliIstenCikisSonuc[];
+}
+
+// SGK Sorgulama Sonuçları
+export interface SgkIseGirisKaydi {
+  tckimlikNo: string;
+  sicilno?: number;
+  girisTarihi: string;
+  sigortaTuru: string;
+  istisnaKodu?: string;
+  islemTarihi?: string;
+  idariParaCezasi?: number;
+}
+
+export interface SgkIstenCikisKaydi {
+  tckimlikNo: string;
+  sicilno?: number;
+  cikisTarihi: string;
+  sigortaTuru: string;
+  istisnaKodu?: string;
+  islemTarihi?: string;
+  idariParaCezasi?: number;
+}
+
+export interface SgkResponse {
+  hatakodu: number;
+  hataAciklama: string;
+  iseGirisKayitlari?: SgkIseGirisKaydi[];
+  istenCikisKayitlari?: SgkIstenCikisKaydi[];
+}
+
+// PDF Doküman Sonuçları
+export interface PdfDokumSonuc {
+  hataKodu: number; // 0, -1, -101
+  hataAciklamasi: string;
+  pdfByteArray?: number[]; // PDF byte array
+}
+
+// Dönem ve Gün Sayısı Bilgileri
+export interface IstenCikisDonemBilgileri {
+  tckimlikNo: string;
+  hataKodu: number; // 0, -1, -101
+  hataAciklamasi: string;
+  referansKodu?: string;
+  istenCikisTarihi: string;
+  iseGirisTarihi: string;
+  bulundugumuzDonemBaslangicTarihi: string;
+  bulundugumuzDonemBitisTarihi: string;
+  bulundugumuzDonemGunSayisi: number;
+  oncekiDonemBaslangicTarihi: string;
+  oncekiDonemBitisTarihi: string;
+  oncekiDonemGunSayisi: number;
+}
+
+export interface SgkResponse {
+  hatakodu: number;
+  hataAciklama: string;
+  iseGirisKayitlari?: SgkIseGirisKaydi[];
+  istenCikisKayitlari?: SgkIstenCikisKaydi[];
+}
+
+export interface SgkPdfResponse {
+  hatakodu: number;
+  hataAciklama: string;
+  pdfDokum?: string; // Base64 encoded PDF
+}
+
+class SgkService {
+  // SGK Web Servis URL'leri
+  private readonly PRODUCTION_URLS = {
+    iseGiris: "https://uyg.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIseGirisService",
+    istenCikis: "https://uyg.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIstenCikisService",
+  };
+
+  private readonly TEST_URLS = {
+    iseGiris: "https://sgkt.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIseGirisService",
+    istenCikis:
+      "https://sgkt.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIstenCikisService",
+  };
+
+  private credentials: SgkCredentials | null = null;
+  private isTestMode: boolean = false;
+
+  constructor() {
+    this.loadCredentials();
+  }
+
+  // SGK kimlik bilgilerini yükle
+  private loadCredentials() {
+    const stored = localStorage.getItem("sgk_credentials");
+    if (stored) {
+      this.credentials = JSON.parse(stored);
+    }
+  }
+
+  // SGK kimlik bilgilerini kaydet
+  setCredentials(credentials: SgkCredentials) {
+    this.credentials = credentials;
+    localStorage.setItem("sgk_credentials", JSON.stringify(credentials));
+  }
+
+  // SGK kimlik bilgilerini al
+  getCredentials(): SgkCredentials | null {
+    return this.credentials;
+  }
+
+  // SGK kimlik bilgilerini temizle
+  clearCredentials() {
+    this.credentials = null;
+    localStorage.removeItem("sgk_credentials");
+  }
+
+  // Test modunu ayarla
+  setTestMode(isTest: boolean) {
+    this.isTestMode = isTest;
+  }
+
+  // URL'leri al
+  public getUrls() {
+    return this.isTestMode ? this.TEST_URLS : this.PRODUCTION_URLS;
+  }
+
+  // Kullanıcı bilgilerini hazırla
+  public getKullaniciBilgileri(): KullaniciBilgileri {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+    return {
+      kullaniciAdi: this.credentials.kullaniciAdi,
+      isyeriSifre: this.credentials.sifre,
+      isyeriSicil: this.credentials.isyeriSicil,
+    };
+  }
+
+  // Sigortalı İşe Giriş Kaydetme - TAM PARAMETRELER
+  async iseGirisKaydet(
+    sigortaliListesi: SigortaliIseGiris[],
+    nakilBilgileri?: {
+      ayniIsverenFarkliIsyeriNakil?: string;
+      nakilGeldigiIsyeriSicil?: string;
+    }
+  ): Promise<SigortaliIseGirisIslemSonuclari> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    if (sigortaliListesi.length > 10) {
+      throw new Error(
+        "Bir seferde en fazla 10 sigortalıya ait bilgi gönderilebilir"
+      );
+    }
+
+    if (sigortaliListesi.length === 0) {
+      throw new Error("En az 1 sigortalı bilgisi gönderilmelidir");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const parametreler: Sgk4aIseGirisParametre = {
+        kullaniciBilgileri,
+        sigortaliIseGirisListesi: sigortaliListesi,
+        ...nakilBilgileri,
+      };
+
+      const response = await fetch(`${urls.iseGiris}/iseGirisKaydet`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parametreler),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşe Giriş Kaydetme Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // Sigortalı İşten Çıkış Kaydetme - TAM PARAMETRELER
+  async istenCikisKaydet(
+    sigortaliListesi: SigortaliIstenCikis[],
+    nakilGidecegiIsyeriSicil?: string
+  ): Promise<SigortaliIstenCikisIslemSonuclari> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    if (sigortaliListesi.length > 10) {
+      throw new Error(
+        "Bir seferde en fazla 10 sigortalıya ait bilgi gönderilebilir"
+      );
+    }
+
+    if (sigortaliListesi.length === 0) {
+      throw new Error("En az 1 sigortalı bilgisi gönderilmelidir");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const parametreler: Sgk4aIstenCikisParametre = {
+        kullaniciBilgileri,
+        sigortaliIstenCikisListesi: sigortaliListesi,
+        nakilGidecegiIsyeriSicil,
+      };
+
+      const response = await fetch(`${urls.istenCikis}/istenCikisKaydet`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(parametreler),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşten Çıkış Kaydetme Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // TC Kimlik No ile İşe Giriş Sorgulama
+  async tckimlikNoileiseGirisSorgula(tckimlikNo: string): Promise<SgkResponse> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/tckimlikNoileiseGirisSorgula`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            kullaniciAdi: this.credentials.kullaniciAdi,
+            isyeriSifre: this.credentials.sifre,
+            isyeriSicil: this.credentials.isyeriSicil,
+            tckimlikNo: tckimlikNo,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşe Giriş Sorgulama Hatası:", error);
+      throw new Error("SGK servisine bağlanılamadı");
+    }
+  }
+
+  // TC Kimlik No ile İşten Çıkış Sorgulama
+  async tckimlikNoileistenCikisSorgula(
+    tckimlikNo: string
+  ): Promise<SgkResponse> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/tckimlikNoileistenCikisSorgula`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            kullaniciAdi: this.credentials.kullaniciAdi,
+            isyeriSifre: this.credentials.sifre,
+            isyeriSicil: this.credentials.isyeriSicil,
+            tckimlikNo: tckimlikNo,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşten Çıkış Sorgulama Hatası:", error);
+      throw new Error("SGK servisine bağlanılamadı");
+    }
+  }
+
+  // İşe Giriş PDF Doküman
+  async iseGirisPdfDokum(referansKodu: string): Promise<SgkPdfResponse> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/iseGirisPdfDokum`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          kullaniciAdi: this.credentials.kullaniciAdi,
+          isyeriSifre: this.credentials.sifre,
+          isyeriSicil: this.credentials.isyeriSicil,
+          referansKodu: referansKodu,
+        }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşe Giriş PDF Hatası:", error);
+      throw new Error("SGK servisine bağlanılamadı");
+    }
+  }
+
+  // İşten Çıkış PDF Doküman
+  async istenCikisPdfDokum(referansKodu: string): Promise<SgkPdfResponse> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/istenCikisPdfDokum`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          kullaniciAdi: this.credentials.kullaniciAdi,
+          isyeriSifre: this.credentials.sifre,
+          isyeriSicil: this.credentials.isyeriSicil,
+          referansKodu: referansKodu,
+        }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşten Çıkış PDF Hatası:", error);
+      throw new Error("SGK servisine bağlanılamadı");
+    }
+  }
+
+  // Sigorta Türü Kodları
+  getSigortaTuruKodlari() {
+    return [
+      { kod: "0", aciklama: "Tüm Sigorta Kolları (zorunlu)" },
+      { kod: "2", aciklama: "Yurtdışına işçi olarak gidenler" },
+      { kod: "7", aciklama: "Çırak" },
+      { kod: "8", aciklama: "Sosyal Güvenlik Destek Primi" },
+      { kod: "12", aciklama: "U.Söz.Olmayan Yab.Uyrk.Sigortalı" },
+      { kod: "14", aciklama: "Cezaevi Çalışanları" },
+      { kod: "16", aciklama: "İşkur Kursiyerleri" },
+      { kod: "17", aciklama: "İş Kaybı Tazminatı Alanlar" },
+      { kod: "18", aciklama: "Yök ve ÖSYM Kısmi Isdihdam" },
+      { kod: "19", aciklama: "Stajyer" },
+      { kod: "24", aciklama: "İntörn Öğrenci" },
+      {
+        kod: "25",
+        aciklama: "Harp m. Vazife m. 2330 ve 3713 SK göre aylık alan",
+      },
+      { kod: "32", aciklama: "Bursiyer" },
+      { kod: "33", aciklama: "Güvenlik Korucusu" },
+      { kod: "34", aciklama: "Gecici 20 kapsamında Zorunlu Sigortalı" },
+      {
+        kod: "35",
+        aciklama: "Gecici 20 kapsamında Sosyal Güvenlik Destekleme Primi",
+      },
+      {
+        kod: "37",
+        aciklama: "Tamamlayıcı ya da Alan Eğitimi Gören Öğrenciler",
+      },
+    ];
+  }
+
+  // İstisna Kodları
+  getIstisnaKodlari() {
+    return [
+      { kod: "", aciklama: "İstisna seçilmemiştir" },
+      { kod: "1", aciklama: "İnşaat İşyerleri" },
+      { kod: "2", aciklama: "Yeni İşyeri" },
+      {
+        kod: "3",
+        aciklama: "Kamu işyerlerinde yurt dışına atanan görevli personel",
+      },
+      {
+        kod: "4",
+        aciklama:
+          "Yabancı ülkelere sefer yapan ulaştırma araçlarına sefer esnasında alınarak çalıştırılan kimseler",
+      },
+      {
+        kod: "6",
+        aciklama:
+          "Maliye Bakanlığı'nın vizesine bağlı olarak kamu işyerlerinde çalışacak sigortalılar",
+      },
+      {
+        kod: "7",
+        aciklama:
+          "4046 sayılı yasa uyarınca özelleştirilen işyerlerinden diğer kamu kurum ve kuruluşlarına naklen atanan sözleşmeli veya kapsam dışı personel",
+      },
+      {
+        kod: "8",
+        aciklama:
+          "Naklen ve hizmet akdi ilişkisi sona ermeden aynı işverenin kurumun aynı ya da başka sigorta/il sigorta müdürlüğünce tescil edilmiş diğer işyerinde çalışan sigortalı",
+      },
+      {
+        kod: "9",
+        aciklama:
+          "4447 sayılı yasa uyarınca işsizlik sigortasına tabi olmayan sözleşmeli personel",
+      },
+    ];
+  }
+
+  // Tarih formatını SGK formatına çevir (dd/MM/yyyy)
+  formatTarih(tarih: Date): string {
+    const gun = tarih.getDate().toString().padStart(2, "0");
+    const ay = (tarih.getMonth() + 1).toString().padStart(2, "0");
+    const yil = tarih.getFullYear();
+    return `${gun}/${ay}/${yil}`;
+  }
+
+  // SGK formatındaki tarihi Date'e çevir
+  parseTarih(tarihStr: string): Date {
+    const [gun, ay, yil] = tarihStr.split("/");
+    return new Date(parseInt(yil), parseInt(ay) - 1, parseInt(gun));
+  }
+
+  // TC Kimlik No + Tarih ile İşe Giriş Sorgulama
+  async tckimlikNoTarihileiseGirisSorgula(
+    tckimlikNo: string,
+    iseGirisTarihi: string
+  ): Promise<SgkResponse> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const response = await fetch(
+        `${urls.iseGiris}/tckimlikNoTarihileiseGirisSorgula`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            kullaniciBilgileri,
+            tcKimlikNo: tckimlikNo,
+            iseGirisTarihi: this.formatTarih(new Date(iseGirisTarihi)),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK TC+Tarih İşe Giriş Sorgulama Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // TC Kimlik No + Tarih ile İşten Çıkış Sorgulama
+  async tckimlikNoTarihileistenCikisSorgula(
+    tckimlikNo: string,
+    istenCikisTarihi: string
+  ): Promise<SgkResponse> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const response = await fetch(
+        `${urls.istenCikis}/tckimlikNoTarihileistenCikisSorgula`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            kullaniciBilgileri,
+            tcKimlikNo: tckimlikNo,
+            istenCikisTarihi: this.formatTarih(new Date(istenCikisTarihi)),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK TC+Tarih İşten Çıkış Sorgulama Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // İşten Çıkış Dönem ve Gün Sayısı Bulma
+  async istenCikisDonemVeGunSayisiBul(
+    tckimlikNo: string,
+    istenCikisTarihi: string
+  ): Promise<IstenCikisDonemBilgileri> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const response = await fetch(
+        `${urls.istenCikis}/istenCikisDonemVeGunSayisiBul`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            kullaniciBilgileri,
+            tckimlikNo,
+            istenCikisTarihi: this.formatTarih(new Date(istenCikisTarihi)),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK Dönem ve Gün Sayısı Bulma Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // İşe Giriş PDF Doküman - Byte Array
+  async iseGirisPdfDokum(referansKodu: number): Promise<PdfDokumSonuc> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const response = await fetch(`${urls.iseGiris}/iseGirisPdfDokum`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          kullaniciBilgileri,
+          referansKodu,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşe Giriş PDF Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // İşten Çıkış PDF Doküman - Byte Array
+  async istenCikisPdfDokum(referansKodu: number): Promise<PdfDokumSonuc> {
+    if (!this.credentials) {
+      throw new Error("SGK kimlik bilgileri bulunamadı");
+    }
+
+    try {
+      const urls = this.getUrls();
+      const kullaniciBilgileri = this.getKullaniciBilgileri();
+
+      const response = await fetch(`${urls.istenCikis}/istenCikisPdfDokum`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          kullaniciBilgileri,
+          referansKodu,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("SGK İşten Çıkış PDF Hatası:", error);
+      throw new Error(`SGK servisine bağlanılamadı: ${error}`);
+    }
+  }
+
+  // PDF Byte Array'ini Blob'a çevir
+  pdfByteArrayToBlob(pdfByteArray: number[]): Blob {
+    const uint8Array = new Uint8Array(pdfByteArray);
+    return new Blob([uint8Array], { type: "application/pdf" });
+  }
+
+  // PDF'i indir
+  downloadPdf(pdfByteArray: number[], filename: string) {
+    const blob = this.pdfByteArrayToBlob(pdfByteArray);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  // ===== SGK KOD LİSTELERİ =====
+
+  // Sigorta Türü Kodları (TAM LİSTE)
+  getSigortaTuruKodlari() {
+    return [
+      { kod: 0, aciklama: "Tüm Sigorta Kolları (zorunlu)" },
+      { kod: 2, aciklama: "Yurtdışına işçi olarak gidenler" },
+      { kod: 7, aciklama: "Çırak" },
+      { kod: 8, aciklama: "Sosyal Güvenlik Destek Primi" },
+      { kod: 12, aciklama: "U.Söz.Olmayan Yab.Uyrk.Sigortalı" },
+      { kod: 14, aciklama: "Cezaevi Çalışanları" },
+      { kod: 16, aciklama: "İşkur Kursiyerleri" },
+      { kod: 17, aciklama: "İş Kaybı Tazminatı Alanlar" },
+      { kod: 18, aciklama: "Yök ve ÖSYM Kısmi Isdihdam" },
+      { kod: 19, aciklama: "Stajyer" },
+      { kod: 24, aciklama: "İntörn Öğrenci" },
+      {
+        kod: 25,
+        aciklama: "Harp m. Vazife m. 2330 ve 3713 SK göre aylık alan",
+      },
+      { kod: 32, aciklama: "Bursiyer" },
+      { kod: 33, aciklama: "Güvenlik Korucusu" },
+      { kod: 34, aciklama: "Gecici 20 kapsamında Zorunlu Sigortalı" },
+      {
+        kod: 35,
+        aciklama: "Gecici 20 kapsamında Sosyal Güvenlik Destekleme Primi",
+      },
+      { kod: 37, aciklama: "Tamamlayıcı ya da Alan Eğitimi Gören Öğrenciler" },
+    ];
+  }
+
+  // Görev Kodları
+  getGorevKodlari() {
+    return [
+      { kod: "01", aciklama: "İşveren veya vekili" },
+      { kod: "02", aciklama: "İşçi" },
+      { kod: "03", aciklama: "657 SK (4/b) kapsamında çalışanlar" },
+      { kod: "04", aciklama: "657 SK (4/c) kapsamında çalışanlar" },
+      { kod: "05", aciklama: "Çıraklar ve stajer öğrenciler" },
+      { kod: "06", aciklama: "Diğerleri" },
+    ];
+  }
+
+  // ÇSGB İş Kolu Kodları (TAM LİSTE)
+  getCsgbIskoluKodlari() {
+    return [
+      { kod: "01", aciklama: "AVCILIK, BALIKÇILIK, TARIM VE ORMANCILIK" },
+      { kod: "02", aciklama: "GIDA SANAYİİ" },
+      { kod: "03", aciklama: "MADENCİLİK VE TAŞ OCAKLARI" },
+      { kod: "04", aciklama: "PETROL, KİMYA, LASTİK, PLASTİK VE İLAÇ" },
+      { kod: "05", aciklama: "DOKUMA, HAZIR GİYİM VE DERİ" },
+      { kod: "06", aciklama: "AĞAÇ VE KÂĞIT" },
+      { kod: "07", aciklama: "İLETİŞİM" },
+      { kod: "08", aciklama: "BASIN, YAYIN VE GAZETECİLİK" },
+      { kod: "09", aciklama: "BANKA, FİNANS VE SİGORTA" },
+      { kod: "10", aciklama: "TİCARET, BÜRO, EĞİTİM VE GÜZEL SANATLAR" },
+      { kod: "11", aciklama: "ÇİMENTO, TOPRAK VE CAM" },
+      { kod: "12", aciklama: "METAL" },
+      { kod: "13", aciklama: "İNŞAAT" },
+      { kod: "14", aciklama: "ENERJİ" },
+      { kod: "15", aciklama: "TAŞIMACILIK" },
+      {
+        kod: "16",
+        aciklama: "GEMİ YAPIMI VE DENİZ TAŞIMACILIĞI, ARDİYE VE ANTREPOCULUK",
+      },
+      { kod: "17", aciklama: "SAĞLIK VE SOSYAL HİZMETLER" },
+      { kod: "18", aciklama: "KONAKLAMA VE EĞLENCE İŞLERİ" },
+      { kod: "19", aciklama: "SAVUNMA VE GÜVENLİK" },
+      { kod: "20", aciklama: "GENEL İŞLER" },
+    ];
+  }
+
+  // Öğrenim Kodları
+  getOgrenimKodlari() {
+    return [
+      { kod: "0", aciklama: "Bilinmeyen" },
+      { kod: "1", aciklama: "Okur yazar değil" },
+      { kod: "2", aciklama: "İlkokul" },
+      { kod: "3", aciklama: "Ortaokul yada İ.Ö.O" },
+      { kod: "4", aciklama: "Lise veya dengi o." },
+      { kod: "5", aciklama: "Yüksek o veya fakülte" },
+      { kod: "6", aciklama: "Yüksek lisans" },
+      { kod: "7", aciklama: "Doktora" },
+    ];
+  }
+
+  // İşten Çıkış Nedeni Kodları (TAM LİSTE - 37 TANE)
+  getIstenCikisNedeniKodlari() {
+    return [
+      { kod: "01", aciklama: "deneme süreli iş sözleşmesinin işverence feshi" },
+      {
+        kod: "02",
+        aciklama: "deneme süreli iş sözleşmesinin işçi tarafından feshi",
+      },
+      {
+        kod: "03",
+        aciklama: "Belirsiz süreli iş sözleşmesinin işçi tarafından feshi",
+      },
+      {
+        kod: "04",
+        aciklama:
+          "Belirsiz süreli iş sözleşmesinin işveren tarafından haklı sebep bildirilmeden feshi",
+      },
+      { kod: "05", aciklama: "belirli süreli iş sözleşmesinin sona ermesi" },
+      {
+        kod: "08",
+        aciklama: "emeklilik(yaşlılık) veya toptan ödeme nedeniyle",
+      },
+      { kod: "09", aciklama: "malulen emeklilik nedeniyle" },
+      { kod: "10", aciklama: "ölüm" },
+      { kod: "11", aciklama: "iş kazası sonucu ölüm" },
+      { kod: "12", aciklama: "askerlik" },
+      { kod: "13", aciklama: "kadın işçinin evlenmesi" },
+      {
+        kod: "14",
+        aciklama: "emeklilik için yaş dışında diğer şartların tamamlanması",
+      },
+      { kod: "15", aciklama: "toplu işçi çıkarma" },
+      {
+        kod: "16",
+        aciklama:
+          "sözleşme sona ermeden sigortalının aynı işverene ait işyerine nakil",
+      },
+      { kod: "17", aciklama: "çalıştığı işyerinin kapanması-feshi" },
+      { kod: "18", aciklama: "işin sona ermesi" },
+      { kod: "19", aciklama: "mevsim bitimi" },
+      { kod: "20", aciklama: "kampanya bitimi" },
+      { kod: "21", aciklama: "statü değişikliği" },
+      { kod: "22", aciklama: "diğer nedenler" },
+      { kod: "23", aciklama: "İşçi tarafından zorunlu nedenlerle fesih" },
+      { kod: "24", aciklama: "işçi tarafından sağlık nedeniyle fesih" },
+      {
+        kod: "25",
+        aciklama:
+          "işverenin ahlak ve iyiniyet kurallara aykırı davranışı nedeniyle",
+      },
+      { kod: "26", aciklama: "disiplin kurulu kararı ile" },
+      {
+        kod: "27",
+        aciklama:
+          "işveren tarafından zorunlu nedenlerle ve tutukluluk nedeniyle",
+      },
+      { kod: "28", aciklama: "işveren tarafından sağlık nedeniyle" },
+      {
+        kod: "29",
+        aciklama:
+          "işveren tarafından işçinin ahlak ve iyi niyet kurallarına aykırı davranışı nedeniyle",
+      },
+      { kod: "30", aciklama: "vize süresinin bitimi" },
+      {
+        kod: "31",
+        aciklama:
+          "borçlar,sendikalar,grev ve lokavt kanunu kapsamında kendi istek ve kusuru dışında",
+      },
+      {
+        kod: "32",
+        aciklama:
+          "4046 sayılı kanunun 21. maddesine göre özelleştirme nedeniyle",
+      },
+      { kod: "33", aciklama: "gazeteci tarafından sözleşmenin feshi" },
+      {
+        kod: "34",
+        aciklama:
+          "işyerinin devri işin veya işyerinin niteliğinin değişmesi nedeniyle",
+      },
+      { kod: "35", aciklama: "6495 SK nedeniyle devlet memurluğuna geçenler" },
+      { kod: "36", aciklama: "KHK ile işyerinin kapatılması" },
+      { kod: "37", aciklama: "KHK ile kamu görevinden çıkarma" },
+    ];
+  }
+
+  // Belge Türü Kodları (TAM LİSTE - 51 TANE)
+  getBelgeTuruKodlari() {
+    return [
+      {
+        kod: "01",
+        aciklama:
+          "Hizmet akdi ile tüm sigorta kollarına tabi çalışanlar (Yabancı uyruklu sigortalılar dahil)",
+      },
+      { kod: "02", aciklama: "Sosyal güvenlik destek primine tabi çalışanlar" },
+      {
+        kod: "04",
+        aciklama:
+          "Yer altında sürekli çalışanlar (Maden işyerlerinde 1/10/2008 öncesi çalışması olanlar için)",
+      },
+      {
+        kod: "05",
+        aciklama:
+          "Yer altında gruplu çalışanlar (Maden işyerlerinde 1/10/2008 öncesi çalışması olanlar için)",
+      },
+      {
+        kod: "06",
+        aciklama:
+          "Yer üstü gruplu çalışanlar (Maden işyerlerinde 1/10/2008 öncesi çalışması olanlar için)",
+      },
+      {
+        kod: "07",
+        aciklama:
+          "3308 sayılı kanunda belirtilen aday çırak, çırak ve mesleki işletmelerde eğitim gören öğrenciler",
+      },
+      { kod: "12", aciklama: "Geçici 20. maddeye tabi olanlar" },
+      {
+        kod: "13",
+        aciklama:
+          "Tüm sigorta kollarına tabi olup işsizlik sigortası primi kesilmeyenler",
+      },
+      { kod: "14", aciklama: "Libya'da çalışanlar" },
+      {
+        kod: "19",
+        aciklama:
+          "Ceza infaz kurumları ile tutukevleri bünyesinde oluşturulan tesis atölye ve benzeri ünitelerde çalıştırılan hükümlü ve tutuklular",
+      },
+      {
+        kod: "20",
+        aciklama: "İstisna akdine istinaden Almanya'ya götürülen Türk işçiler",
+      },
+      {
+        kod: "21",
+        aciklama:
+          "Türk işverenler tarafından sosyal güvenlik sözleşmesi imzalanmamış ülkelere götürülerek çalıştırılan Türk işçileri",
+      },
+      {
+        kod: "22",
+        aciklama:
+          "Meslek liselerinde okumakta iken veya yüksek öğrenimleri sırasında zorunlu staja tabi tutulan öğrenciler",
+      },
+      {
+        kod: "23",
+        aciklama:
+          "Harp malülleri ile 3713 ve 2330 sayılı kanunlara göre vazife malüllüğü aylığı alanlardan kısa vadeli sigorta kollarına tabi olanlar",
+      },
+      {
+        kod: "24",
+        aciklama:
+          "Harp malülleri ile 3713 ve 2330 sayılı kanunlara göre vazife malüllüğü aylığı alanlardan kısa ve uzun vadeli sigorta kollarına tabi olanlar",
+      },
+      {
+        kod: "25",
+        aciklama:
+          "Türkiye İş Kurumu tarafından düzenlenen eğitimlere katılan kursiyerler",
+      },
+      {
+        kod: "28",
+        aciklama:
+          "4046 sayılı kanunun 21 inci maddesi kapsamında iş kaybı tazminatı alanlar",
+      },
+      {
+        kod: "29",
+        aciklama:
+          "Tüm sigorta kollarına tabi çalışıp 60 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "30",
+        aciklama:
+          "İşsizlik sigortası hariç 60 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "31",
+        aciklama:
+          "Harp malülleri ile 3713 ve 2330 sayılı kanunlara göre vazife malüllüğü aylığı alanlardan kısa ve uzun vadeli sigorta kollarına tabi olup 60 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "32",
+        aciklama:
+          "Tüm sigorta kollarına tabi çalışıp 90 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "33",
+        aciklama:
+          "İşsizlik sigortası hariç 90 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "34",
+        aciklama:
+          "Harp malülleri ile 3713 ve 2330 sayılı kanunlara göre vazife malüllüğü aylığı alanlardan kısa ve uzun vadeli sigorta kollarına tabi olup 90 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "35",
+        aciklama:
+          "Tüm sigorta kollarına tabi çalışıp 180 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "36",
+        aciklama:
+          "İşsizlik sigortası hariç 180 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "37",
+        aciklama:
+          "Harp malülleri ile 3713 ve 2330 sayılı kanunlara göre vazife malüllüğü aylığı alanlardan kısa ve uzun vadeli sigorta kollarına tabi olup 180 gün fiili hizmet süresi zammına tabi çalışanlar",
+      },
+      {
+        kod: "39",
+        aciklama:
+          "Birleşik Krallıkta ikamet edenler ve İşviçre vatandaşı olanlardan uzun vadeli sigorta kolunun uygulanmasını talep etmeyenler",
+      },
+      { kod: "41", aciklama: "Kamu idarelerinde iş akdi askıda olanlar" },
+      {
+        kod: "42",
+        aciklama:
+          "3308 Sayılı Kanunda Belirtilen Aday Çırak, Çırak ve İşletmelerde Mesleki Eğitim Gören Öğrencilerden Bakmakla Yükümlü Olunmayanlar",
+      },
+      {
+        kod: "43",
+        aciklama:
+          "Meslek Liselerinde Okumakta İken veya Yüksek Öğrenimleri Sırasında Staja Tabi Tutulan Öğrenciler İle 2547 Sayılı Kanun Uyarınca Üniversitelerde Kısmi Zamanlı Çalıştırılan Öğrencilerden Bakmakla Yükümlü Olunmayanlar",
+      },
+      {
+        kod: "44",
+        aciklama:
+          "Türkiye İş Kurumu Tarafından Düzenlenen Eğitimlere Katılan Kursiyerlerden Bakmakla Yükümlü Olunmayanlar",
+      },
+      { kod: "48", aciklama: "EMEKLİ YERALTINDA ÇALIŞAN" },
+      { kod: "49", aciklama: "TAMAMLAYICI BAKMAKLA YÜK." },
+      { kod: "50", aciklama: "TAMAMLAYICI BAKM YÜK.OLM." },
+      { kod: "51", aciklama: "GÜVENLİK KORUCULARI EK-15." },
+    ];
+  }
+
+  // İstisna Kodları (TAM LİSTE - 9 TANE)
+  getIstisnaKodlari() {
+    return [
+      { kod: "", aciklama: "İstisna seçilmemiştir" },
+      { kod: "1", aciklama: "İnşaat İşyerleri (Ekrandan seçilemez)" },
+      { kod: "2", aciklama: "Yeni İşyeri (Ekrandan seçilemez)" },
+      {
+        kod: "3",
+        aciklama: "Kamu işyerlerinde yurt dışına atanan görevli personel",
+      },
+      {
+        kod: "4",
+        aciklama:
+          "Yabancı ülkelere sefer yapan ulaştırma araçlarına sefer esnasında alınarak çalıştırılan kimseler",
+      },
+      {
+        kod: "6",
+        aciklama:
+          "Maliye Bakanlığı'nın vizesine bağlı olarak kamu işyerlerinde çalışacak sigortalılar",
+      },
+      {
+        kod: "7",
+        aciklama:
+          "4046 sayılı yasa uyarınca özelleştirilen işyerlerinden diğer kamu kurum ve kuruluşlarına naklen atanan sözleşmeli veya kapsam dışı personel",
+      },
+      {
+        kod: "8",
+        aciklama:
+          "Naklen ve hizmet akdi ilişkisi sona ermeden aynı işverenin kurumun aynı ya da başka sigorta/il sigorta müdürlüğünce tescil edilmiş diğer işyerinde çalışan sigortalı",
+      },
+      {
+        kod: "9",
+        aciklama:
+          "4447 sayılı yasa uyarınca işsizlik sigortasına tabi olmayan sözleşmeli personel",
+      },
+    ];
+  }
+
+  // Eksik Gün Nedeni Kodları (TAM LİSTE - 24 TANE)
+  getEksikGunNedeniKodlari() {
+    return [
+      { kod: "00", aciklama: "Eksik gün bildirilmeyecek." },
+      { kod: "01", aciklama: "İstirahat" },
+      { kod: "02", aciklama: "Ücretsiz/aylıksız izin" },
+      { kod: "03", aciklama: "Disiplin cezası" },
+      { kod: "04", aciklama: "Gözaltına alınma" },
+      { kod: "05", aciklama: "Tutukluluk" },
+      { kod: "06", aciklama: "Kısmi istihdam" },
+      { kod: "07", aciklama: "Puantaj kayıtları" },
+      { kod: "08", aciklama: "Grev" },
+      { kod: "09", aciklama: "Lokavt" },
+      { kod: "10", aciklama: "Genel hayatı etkileyen olaylar" },
+      { kod: "11", aciklama: "Doğal afet" },
+      { kod: "12", aciklama: "Birden fazla" },
+      { kod: "14", aciklama: "Diğer" },
+      { kod: "15", aciklama: "Devamsızlık" },
+      { kod: "16", aciklama: "Fesih tarihinde çalışmamış" },
+      { kod: "17", aciklama: "Ev hizmetlerinde 30 günden az" },
+      { kod: "18", aciklama: "Kısa çalışma ödeneği" },
+      { kod: "19", aciklama: "Ücretsiz doğum izni" },
+      { kod: "20", aciklama: "Ücretsiz yol izni" },
+      { kod: "21", aciklama: "Diğer ücretsiz izin" },
+      { kod: "22", aciklama: "5434 SK ek 76, GM 192" },
+      { kod: "23", aciklama: "Yarım çalışma ödeneği" },
+      { kod: "24", aciklama: "Yarım çalışma ödeneği ve diğer nedenler" },
+    ];
+  }
+
+  // Test İşyeri Bilgileri
+  getTestIsyeriBilgileri() {
+    return {
+      testIsyeri1: {
+        kullaniciAdi: "12345678901",
+        isyeriKodu: "999",
+        isyeriSifre: "123456",
+        sistemSifre: "123456",
+        vergiNo: "123",
+        isyeriSicil: "24292090900003010860195000",
+      },
+      testIsyeri2: {
+        kullaniciAdi: "98765432101",
+        isyeriKodu: "888",
+        isyeriSifre: "123456",
+        sistemSifre: "123456",
+        vergiNo: "123",
+        isyeriSicil: "24292090900002510860195000",
+      },
+    };
+  }
+
+  // Veri Doğrulama Fonksiyonları
+  validateTcKimlikNo(tcKimlikNo: string): boolean {
+    if (!tcKimlikNo || tcKimlikNo.length !== 11) return false;
+    if (!/^\d+$/.test(tcKimlikNo)) return false;
+
+    const digits = tcKimlikNo.split("").map(Number);
+    const sum1 = digits[0] + digits[2] + digits[4] + digits[6] + digits[8];
+    const sum2 = digits[1] + digits[3] + digits[5] + digits[7];
+
+    const check1 = (sum1 * 7 - sum2) % 10;
+    const check2 = (sum1 + sum2 + check1) % 10;
+
+    return check1 === digits[9] && check2 === digits[10];
+  }
+
+  validateIsyeriSicil(isyeriSicil: string): boolean {
+    return (
+      isyeriSicil && isyeriSicil.length === 26 && /^\d+$/.test(isyeriSicil)
+    );
+  }
+
+  validateMeslekKodu(meslekKodu: string): boolean {
+    if (!meslekKodu) return true; // Opsiyonel
+    return /^\d{4}\.\d{2,3}$/.test(meslekKodu);
+  }
+
+  validateKismiSureliGunSayisi(
+    gunSayisi: number,
+    kismiSureliCalisiyormu: string
+  ): boolean {
+    if (kismiSureliCalisiyormu === "E") {
+      return gunSayisi >= 1 && gunSayisi <= 29;
+    }
+    return true;
+  }
+
+  // İdari Para Cezası Hesaplama Sistemi
+  calculateIdariParaCezasi(
+    girisTarihi: string,
+    bildirimTarihi: string,
+    sigortaTuru: number
+  ): number {
+    const giris = new Date(girisTarihi);
+    const bildirim = new Date(bildirimTarihi);
+
+    // Bildirim süresi: İşe giriş tarihinden itibaren 10 gün
+    const bildirimSuresi = 10;
+    const sonBildirimTarihi = new Date(giris);
+    sonBildirimTarihi.setDate(giris.getDate() + bildirimSuresi);
+
+    // Gecikme gün sayısı
+    const gecikmeGunSayisi = Math.max(
+      0,
+      Math.ceil(
+        (bildirim.getTime() - sonBildirimTarihi.getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    );
+
+    if (gecikmeGunSayisi === 0) {
+      return 0; // Ceza yok
+    }
+
+    // Ceza tutarı: Gecikme günü başına 100 TL (2024 yılı için)
+    const gunlukCezaTutari = 100;
+    const toplamCeza = gecikmeGunSayisi * gunlukCezaTutari;
+
+    return toplamCeza;
+  }
+
+  // Ceza Durumu Kontrolü
+  checkIdariParaCezasiDurumu(
+    girisTarihi: string,
+    bildirimTarihi: string
+  ): {
+    cezaVarMi: boolean;
+    gecikmeGunSayisi: number;
+    cezaTutari: number;
+    uyariMesaji?: string;
+  } {
+    const giris = new Date(girisTarihi);
+    const bildirim = new Date(bildirimTarihi);
+
+    const bildirimSuresi = 10;
+    const sonBildirimTarihi = new Date(giris);
+    sonBildirimTarihi.setDate(giris.getDate() + bildirimSuresi);
+
+    const gecikmeGunSayisi = Math.max(
+      0,
+      Math.ceil(
+        (bildirim.getTime() - sonBildirimTarihi.getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    );
+    const cezaTutari = this.calculateIdariParaCezasi(
+      girisTarihi,
+      bildirimTarihi,
+      0
+    );
+
+    let uyariMesaji: string | undefined;
+
+    if (gecikmeGunSayisi > 0) {
+      uyariMesaji = `⚠️ Bildirim ${gecikmeGunSayisi} gün gecikmeli! İdari para cezası: ${cezaTutari} TL`;
+    } else if (
+      bildirim.getTime() >
+      sonBildirimTarihi.getTime() - 2 * 24 * 60 * 60 * 1000
+    ) {
+      uyariMesaji = `⚠️ Bildirim süresi yaklaşıyor! Son tarih: ${this.formatTarih(
+        sonBildirimTarihi
+      )}`;
+    }
+
+    return {
+      cezaVarMi: gecikmeGunSayisi > 0,
+      gecikmeGunSayisi,
+      cezaTutari,
+      uyariMesaji,
+    };
+  }
+
+  // Web Servis URL Yönetimi
+
+  getUrls() {
+    const baseUrls = {
+      gercek: {
+        iseGiris: "https://uyg.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIseGirisService",
+        istenCikis:
+          "https://uyg.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIstenCikisService",
+        wsdl: {
+          iseGiris:
+            "https://uyg.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIseGirisService?wsdl",
+          istenCikis:
+            "https://uyg.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIstenCikisService?wsdl",
+        },
+      },
+      test: {
+        iseGiris:
+          "https://sgkt.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIseGirisService",
+        istenCikis:
+          "https://sgkt.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIstenCikisService",
+        wsdl: {
+          iseGiris:
+            "https://sgkt.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIseGirisService?wsdl",
+          istenCikis:
+            "https://sgkt.sgk.gov.tr/WS_SgkTescil4a/WS_SgkIstenCikisService?wsdl",
+        },
+      },
+    };
+
+    return this.isTestMode ? baseUrls.test : baseUrls.gercek;
+  }
+
+  // URL Doğrulama
+  validateUrl(url: string): boolean {
+    try {
+      const urlObj = new URL(url);
+      return (
+        urlObj.protocol === "https:" && urlObj.hostname.includes("sgk.gov.tr")
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  // HTTPS Zorunluluğu Kontrolü
+  checkHttpsRequirement(url: string): { isValid: boolean; message?: string } {
+    if (!url.startsWith("https://")) {
+      return {
+        isValid: false,
+        message:
+          "SGK web servisleri HTTPS protokolü gerektirir. HTTP üzerinden sorgulamalarda hata alırsınız.",
+      };
+    }
+    return { isValid: true };
+  }
+
+  // Rate Limiting Sistemi
+  private requestQueue: Array<() => Promise<any>> = [];
+  private requestCount: number = 0;
+  private lastResetTime: number = Date.now();
+  private readonly MAX_REQUESTS_PER_5_SECONDS = 20;
+  private readonly RATE_LIMIT_WINDOW = 5000; // 5 saniye
+
+  // Rate limit kontrolü
+  private checkRateLimit(): boolean {
+    const now = Date.now();
+
+    // 5 saniye geçtiyse sayacı sıfırla
+    if (now - this.lastResetTime >= this.RATE_LIMIT_WINDOW) {
+      this.requestCount = 0;
+      this.lastResetTime = now;
+    }
+
+    return this.requestCount < this.MAX_REQUESTS_PER_5_SECONDS;
+  }
+
+  // Rate limit ile istek gönderme
+  private async executeWithRateLimit<T>(
+    requestFn: () => Promise<T>
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const executeRequest = async () => {
+        if (!this.checkRateLimit()) {
+          // Rate limit aşıldı, kuyruğa ekle
+          this.requestQueue.push(executeRequest);
+          return;
+        }
+
+        this.requestCount++;
+
+        try {
+          const result = await requestFn();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+
+        // Kuyruktaki bir sonraki isteği işle
+        if (this.requestQueue.length > 0) {
+          const nextRequest = this.requestQueue.shift();
+          if (nextRequest) {
+            setTimeout(nextRequest, 100); // 100ms bekle
+          }
+        }
+      };
+
+      executeRequest();
+    });
+  }
+
+  // Rate limit durumu
+  getRateLimitStatus(): {
+    currentRequests: number;
+    maxRequests: number;
+    windowMs: number;
+    remainingRequests: number;
+    resetTime: number;
+  } {
+    const now = Date.now();
+    const remainingTime = Math.max(
+      0,
+      this.RATE_LIMIT_WINDOW - (now - this.lastResetTime)
+    );
+
+    return {
+      currentRequests: this.requestCount,
+      maxRequests: this.MAX_REQUESTS_PER_5_SECONDS,
+      windowMs: this.RATE_LIMIT_WINDOW,
+      remainingRequests: Math.max(
+        0,
+        this.MAX_REQUESTS_PER_5_SECONDS - this.requestCount
+      ),
+      resetTime: this.lastResetTime + this.RATE_LIMIT_WINDOW,
+    };
+  }
+
+  // SGK Hata Kategori İkonu
+  getErrorCategoryIcon(kategori: string): string {
+    const iconMap: { [key: string]: string } = {
+      kimlik: "🆔",
+      sifre: "🔐",
+      baglanti: "🌐",
+      veri: "📊",
+      yetki: "🔒",
+      sistem: "⚙️",
+      belge: "📄",
+      tarih: "📅",
+      format: "📝",
+      diger: "❓",
+    };
+    return iconMap[kategori] || "❓";
+  }
+
+  // SGK Kritiklik Rengi
+  getCriticalityColor(kritiklik: string): string {
+    const colorMap: { [key: string]: string } = {
+      kritik: "error",
+      yuksek: "warning",
+      orta: "info",
+      dusuk: "success",
+    };
+    return colorMap[kritiklik] || "default";
+  }
+
+  // XML Gateway Hata Kodları İşleme
+  processXmlGatewayError(
+    errorCode: number,
+    errorMessage: string
+  ): {
+    kategori: string;
+    aciklama: string;
+    cozum: string;
+    kritiklik: "dusuk" | "orta" | "yuksek" | "kritik";
+  } {
+    // XML Gateway'den dönen hata kodları
+    const xmlGatewayErrors: { [key: number]: any } = {
+      // Sistem Hataları
+      [-101]: {
+        kategori: "Sistem Hatası",
+        aciklama: "SGK sisteminde geçici bir sorun oluştu",
+        cozum:
+          "İşlemi birkaç dakika sonra tekrar deneyin. Sorun devam ederse SGK ile iletişime geçin.",
+        kritiklik: "kritik",
+      },
+
+      // Kimlik Doğrulama Hataları
+      [-1]: {
+        kategori: "Kimlik Doğrulama Hatası",
+        aciklama: "Kullanıcı adı, şifre veya işyeri sicil bilgileri hatalı",
+        cozum:
+          "SGK kimlik bilgilerinizi kontrol edin ve doğru bilgileri girin.",
+        kritiklik: "yuksek",
+      },
+
+      // Rate Limiting Hataları
+      [-102]: {
+        kategori: "Rate Limiting",
+        aciklama: "Çok fazla istek gönderildi. Rate limit aşıldı.",
+        cozum:
+          "5 saniye bekleyip tekrar deneyin. Maksimum 20 istek/5 saniye limiti vardır.",
+        kritiklik: "orta",
+      },
+
+      // Veri Formatı Hataları
+      [-201]: {
+        kategori: "Veri Formatı Hatası",
+        aciklama: "Gönderilen veri formatı hatalı",
+        cozum: "TC Kimlik No, tarih formatı ve diğer alanları kontrol edin.",
+        kritiklik: "orta",
+      },
+
+      // İşyeri Sicil Hataları
+      [-301]: {
+        kategori: "İşyeri Sicil Hatası",
+        aciklama: "İşyeri sicil numarası geçersiz veya bulunamadı",
+        cozum: "26 haneli işyeri sicil numaranızı SGK'dan kontrol edin.",
+        kritiklik: "yuksek",
+      },
+
+      // Sigortalı Bulunamadı
+      [-401]: {
+        kategori: "Sigortalı Bulunamadı",
+        aciklama: "Belirtilen TC Kimlik No ile sigortalı bulunamadı",
+        cozum:
+          "TC Kimlik No'yu kontrol edin. Sigortalı SGK sisteminde kayıtlı olmalı.",
+        kritiklik: "orta",
+      },
+
+      // Dönem Hataları
+      [-501]: {
+        kategori: "Dönem Hatası",
+        aciklama: "Belirtilen dönem için işlem yapılamıyor",
+        cozum:
+          "Dönem tarihlerini kontrol edin. Geçmiş dönemler için işlem yapılamayabilir.",
+        kritiklik: "orta",
+      },
+    };
+
+    // Bilinen hata kodu varsa detayları döndür
+    if (xmlGatewayErrors[errorCode]) {
+      return xmlGatewayErrors[errorCode];
+    }
+
+    // Bilinmeyen hata kodu için genel mesaj
+    return {
+      kategori: "Bilinmeyen Hata",
+      aciklama: `XML Gateway Hatası: ${errorMessage}`,
+      cozum: "SGK ile iletişime geçerek hata kodunu bildirin.",
+      kritiklik: "yuksek",
+    };
+  }
+
+  // SGK Kısmi Süreli Çalışma Validasyonu sistemi
+  validateKismiSureliCalisma(
+    girisTarihi: string,
+    cikisTarihi?: string
+  ): {
+    isValid: boolean;
+    calismaGunu: number;
+    isKismiSureli: boolean;
+    uyari?: string;
+    oneriler?: string[];
+  } {
+    try {
+      const giris = new Date(girisTarihi);
+      const cikis = cikisTarihi ? new Date(cikisTarihi) : new Date();
+
+      // Çalışma günü hesaplama (hafta sonları hariç)
+      let calismaGunu = 0;
+      const currentDate = new Date(giris);
+
+      while (currentDate <= cikis) {
+        const dayOfWeek = currentDate.getDay();
+        // Pazartesi=1, Salı=2, ..., Cuma=5 (hafta içi)
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+          calismaGunu++;
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      const isKismiSureli = calismaGunu >= 1 && calismaGunu <= 29;
+
+      let uyari: string | undefined;
+      let oneriler: string[] = [];
+
+      if (calismaGunu === 0) {
+        uyari = "Geçersiz çalışma süresi: Hiç çalışma günü yok";
+        oneriler = [
+          "Giriş tarihini kontrol edin",
+          "Çıkış tarihini kontrol edin",
+        ];
+      } else if (calismaGunu > 29) {
+        uyari = "Tam süreli çalışma: 29 günden fazla çalışma günü";
+        oneriler = [
+          "Bu personel tam süreli çalışan olarak kaydedilmeli",
+          "SGK bildirimi tam süreli olarak yapılmalı",
+        ];
+      } else if (calismaGunu >= 1 && calismaGunu <= 29) {
+        // Kısmi süreli çalışma - özel kontroller
+        if (calismaGunu <= 7) {
+          uyari = "Çok kısa süreli çalışma: 7 gün veya daha az";
+          oneriler = [
+            "Geçici işçi statüsü kontrol edilmeli",
+            "SGK bildirimi kısmi süreli olarak yapılmalı",
+            "İş sözleşmesi süresi kontrol edilmeli",
+          ];
+        } else if (calismaGunu <= 14) {
+          uyari = "Kısa süreli çalışma: 8-14 gün arası";
+          oneriler = [
+            "SGK bildirimi kısmi süreli olarak yapılmalı",
+            "Çalışma saatleri kontrol edilmeli",
+            "Ücret hesaplaması kısmi süreli olarak yapılmalı",
+          ];
+        } else if (calismaGunu <= 29) {
+          uyari = "Orta süreli çalışma: 15-29 gün arası";
+          oneriler = [
+            "SGK bildirimi kısmi süreli olarak yapılmalı",
+            "Tam süreli geçiş planı değerlendirilmeli",
+            "Performans değerlendirmesi yapılmalı",
+          ];
+        }
+      }
+
+      return {
+        isValid: calismaGunu > 0,
+        calismaGunu,
+        isKismiSureli,
+        uyari,
+        oneriler,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        calismaGunu: 0,
+        isKismiSureli: false,
+        uyari: "Tarih hesaplama hatası",
+        oneriler: ["Tarih formatını kontrol edin"],
+      };
+    }
+  }
+
+  // SGK Kısmi Süreli Çalışma Özel Kuralları
+  getKismiSureliCalismaKurallari(): {
+    kategori: string;
+    gunAraligi: string;
+    aciklama: string;
+    sgkKodu: string;
+    uygulama: string[];
+  }[] {
+    return [
+      {
+        kategori: "Geçici İşçi",
+        gunAraligi: "1-7 gün",
+        aciklama: "Çok kısa süreli geçici işler",
+        sgkKodu: "KISMİ_001",
+        uygulama: [
+          "SGK bildirimi kısmi süreli",
+          "Geçici işçi statüsü",
+          "Ücret günlük hesaplama",
+        ],
+      },
+      {
+        kategori: "Kısa Süreli",
+        gunAraligi: "8-14 gün",
+        aciklama: "Kısa süreli proje işleri",
+        sgkKodu: "KISMİ_002",
+        uygulama: [
+          "SGK bildirimi kısmi süreli",
+          "Proje bazlı çalışma",
+          "Haftalık ücret hesaplama",
+        ],
+      },
+      {
+        kategori: "Orta Süreli",
+        gunAraligi: "15-29 gün",
+        aciklama: "Orta süreli geçici işler",
+        sgkKodu: "KISMİ_003",
+        uygulama: [
+          "SGK bildirimi kısmi süreli",
+          "Tam süreli geçiş değerlendirmesi",
+          "Aylık ücret hesaplama",
+        ],
+      },
+      {
+        kategori: "Tam Süreli",
+        gunAraligi: "30+ gün",
+        aciklama: "Tam süreli çalışma",
+        sgkKodu: "TAM_001",
+        uygulama: [
+          "SGK bildirimi tam süreli",
+          "Tam süreli işçi statüsü",
+          "Tam ücret hesaplama",
+        ],
+      },
+    ];
+  }
+
+  // SGK Dönem Türleri
+  getDonemTurleri(): {
+    ozel: Array<{
+      kod: string;
+      aciklama: string;
+      baslangic: string;
+      bitis: string;
+    }>;
+    resmi: Array<{
+      kod: string;
+      aciklama: string;
+      baslangic: string;
+      bitis: string;
+    }>;
+  } {
+    return {
+      ozel: [
+        {
+          kod: "OZEL_1",
+          aciklama: "Özel İşyeri - Ayın 1'i Başlangıç",
+          baslangic: "Ayın 1'i",
+          bitis: "Ayın son günü",
+        },
+        {
+          kod: "OZEL_2",
+          aciklama: "Özel İşyeri - Dönem Başlangıç",
+          baslangic: "1 Ocak",
+          bitis: "31 Aralık",
+        },
+      ],
+      resmi: [
+        {
+          kod: "RESMI_1",
+          aciklama: "Resmi İşyeri - Ayın 15'i Başlangıç",
+          baslangic: "Ayın 15'i",
+          bitis: "Sonraki ayın 14'ü",
+        },
+        {
+          kod: "RESMI_2",
+          aciklama: "Resmi İşyeri - Dönem Başlangıç",
+          baslangic: "15 Ocak",
+          bitis: "14 Ocak (sonraki yıl)",
+        },
+      ],
+    };
+  }
+
+  // SGK Kısmi Süreli Çalışma Kuralları
+  getKismiSureliCalismaKurallari(): Array<{
+    kategori: string;
+    aciklama: string;
+    kurallar: string[];
+    uygulamalar: string[];
+  }> {
+    return [
+      {
+        kategori: "Geçici İşçi",
+        aciklama: "1-29 gün arası geçici işçi çalıştırma",
+        kurallar: [
+          "SGK bildirimi yapılmalıdır",
+          "Kısmi süreli çalışma işaretlenmelidir",
+          "Çalışma gün sayısı belirtilmelidir",
+        ],
+        uygulamalar: [
+          "İşe giriş bildirgesi doldurulur",
+          "Kısmi süreli çalışma alanı işaretlenir",
+          "Gün sayısı girilir",
+        ],
+      },
+      {
+        kategori: "Kısa Süreli",
+        aciklama: "1-14 gün arası kısa süreli çalışma",
+        kurallar: [
+          "Özel bildirim gerekli değil",
+          "Normal SGK bildirimi yeterli",
+          "Çalışma süresi belirtilmelidir",
+        ],
+        uygulamalar: [
+          "Standart işe giriş bildirgesi",
+          "Çalışma süresi alanı doldurulur",
+        ],
+      },
+      {
+        kategori: "Orta Süreli",
+        aciklama: "15-29 gün arası orta süreli çalışma",
+        kurallar: [
+          "SGK bildirimi zorunludur",
+          "Kısmi süreli çalışma işaretlenmelidir",
+          "Detaylı çalışma bilgisi gerekli",
+        ],
+        uygulamalar: [
+          "Kısmi süreli çalışma bildirgesi",
+          "Çalışma gün sayısı detayı",
+          "Çalışma saatleri belirtilir",
+        ],
+      },
+    ];
+  }
+
+  // SGK Kısmi Süreli Çalışma Kuralları
+  getKismiSureliCalismaKurallari(): Array<{
+    kategori: string;
+    aciklama: string;
+    kurallar: string[];
+    uygulamalar: string[];
+  }> {
+    return [
+      {
+        kategori: "Geçici İşçi",
+        aciklama: "1-29 gün arası geçici işçi çalıştırma",
+        kurallar: [
+          "SGK bildirimi yapılmalıdır",
+          "Kısmi süreli çalışma işaretlenmelidir",
+          "Çalışma gün sayısı belirtilmelidir",
+        ],
+        uygulamalar: [
+          "İşe giriş bildirgesi doldurulur",
+          "Kısmi süreli çalışma alanı işaretlenir",
+          "Gün sayısı girilir",
+        ],
+      },
+      {
+        kategori: "Kısa Süreli",
+        aciklama: "1-14 gün arası kısa süreli çalışma",
+        kurallar: [
+          "Özel bildirim gerekli değil",
+          "Normal SGK bildirimi yeterli",
+          "Çalışma süresi belirtilmelidir",
+        ],
+        uygulamalar: [
+          "Standart işe giriş bildirgesi",
+          "Çalışma süresi alanı doldurulur",
+        ],
+      },
+      {
+        kategori: "Orta Süreli",
+        aciklama: "15-29 gün arası orta süreli çalışma",
+        kurallar: [
+          "SGK bildirimi zorunludur",
+          "Kısmi süreli çalışma işaretlenmelidir",
+          "Detaylı çalışma bilgisi gerekli",
+        ],
+        uygulamalar: [
+          "Kısmi süreli çalışma bildirgesi",
+          "Çalışma gün sayısı detayı",
+          "Çalışma saatleri belirtilir",
+        ],
+      },
+    ];
+  }
+
+  // SGK Kısmi Süreli Çalışma Kuralları
+  getKismiSureliCalismaKurallari(): Array<{
+    kategori: string;
+    aciklama: string;
+    kurallar: string[];
+    uygulamalar: string[];
+  }> {
+    return [
+      {
+        kategori: "Geçici İşçi",
+        aciklama: "1-29 gün arası geçici işçi çalıştırma",
+        kurallar: [
+          "SGK bildirimi yapılmalıdır",
+          "Kısmi süreli çalışma işaretlenmelidir",
+          "Çalışma gün sayısı belirtilmelidir",
+        ],
+        uygulamalar: [
+          "İşe giriş bildirgesi doldurulur",
+          "Kısmi süreli çalışma alanı işaretlenir",
+          "Gün sayısı girilir",
+        ],
+      },
+      {
+        kategori: "Kısa Süreli",
+        aciklama: "1-14 gün arası kısa süreli çalışma",
+        kurallar: [
+          "Özel bildirim gerekli değil",
+          "Normal SGK bildirimi yeterli",
+          "Çalışma süresi belirtilmelidir",
+        ],
+        uygulamalar: [
+          "Standart işe giriş bildirgesi",
+          "Çalışma süresi alanı doldurulur",
+        ],
+      },
+      {
+        kategori: "Orta Süreli",
+        aciklama: "15-29 gün arası orta süreli çalışma",
+        kurallar: [
+          "SGK bildirimi zorunludur",
+          "Kısmi süreli çalışma işaretlenmelidir",
+          "Detaylı çalışma bilgisi gerekli",
+        ],
+        uygulamalar: [
+          "Kısmi süreli çalışma bildirgesi",
+          "Çalışma gün sayısı detayı",
+          "Çalışma saatleri belirtilir",
+        ],
+      },
+    ];
+  }
+
+  // SGK Dönem Başlangıç/Bitiş Tarihleri sistemi
+  calculateDonemTarihleri(
+    isyeriTuru: "ozel" | "resmi",
+    yil: number,
+    ay: number
+  ): {
+    donemBaslangic: string;
+    donemBitis: string;
+    donemKodu: string;
+    aciklama: string;
+  } {
+    try {
+      let donemBaslangic: Date;
+      let donemBitis: Date;
+
+      if (isyeriTuru === "ozel") {
+        // Özel işyerleri: Ayın 1'i başlangıç
+        donemBaslangic = new Date(yil, ay - 1, 1);
+        donemBitis = new Date(yil, ay, 0); // Ayın son günü
+      } else {
+        // Resmi işyerleri: Ayın 15'i başlangıç
+        donemBaslangic = new Date(yil, ay - 1, 15);
+        // Bir sonraki ayın 14'ü bitiş
+        donemBitis = new Date(yil, ay, 14);
+      }
+
+      const donemKodu = `${yil}${ay.toString().padStart(2, "0")}`;
+      const aciklama =
+        isyeriTuru === "ozel"
+          ? `Özel işyeri dönemi: ${ay}/${yil}`
+          : `Resmi işyeri dönemi: ${ay}/${yil} (15'inden başlar)`;
+
+      return {
+        donemBaslangic: donemBaslangic.toISOString().split("T")[0],
+        donemBitis: donemBitis.toISOString().split("T")[0],
+        donemKodu,
+        aciklama,
+      };
+    } catch (error) {
+      throw new Error("Dönem tarihi hesaplama hatası");
+    }
+  }
+
+  // SGK Dönem Validasyonu
+  validateDonemTarihleri(
+    isyeriTuru: "ozel" | "resmi",
+    girisTarihi: string,
+    cikisTarihi?: string
+  ): {
+    isValid: boolean;
+    donemBilgileri: any[];
+    uyarilar: string[];
+    oneriler: string[];
+  } {
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+    const donemBilgileri: any[] = [];
+
+    try {
+      const giris = new Date(girisTarihi);
+      const cikis = cikisTarihi ? new Date(cikisTarihi) : new Date();
+
+      // Giriş ve çıkış tarihleri arasındaki tüm dönemleri hesapla
+      const currentDate = new Date(giris);
+
+      while (currentDate <= cikis) {
+        const yil = currentDate.getFullYear();
+        const ay = currentDate.getMonth() + 1;
+
+        const donemBilgisi = this.calculateDonemTarihleri(isyeriTuru, yil, ay);
+
+        // Bu dönemde çalışma var mı kontrol et
+        const donemBaslangic = new Date(donemBilgisi.donemBaslangic);
+        const donemBitis = new Date(donemBilgisi.donemBitis);
+
+        const donemGirisTarihi = new Date(
+          Math.max(donemBaslangic.getTime(), giris.getTime())
+        );
+        const donemCikisTarihi = new Date(
+          Math.min(donemBitis.getTime(), cikis.getTime())
+        );
+
+        if (donemGirisTarihi <= donemCikisTarihi) {
+          donemBilgileri.push({
+            ...donemBilgisi,
+            donemGirisTarihi: donemGirisTarihi.toISOString().split("T")[0],
+            donemCikisTarihi: donemCikisTarihi.toISOString().split("T")[0],
+            calismaGunu: this.calculateCalismaGunu(
+              donemGirisTarihi,
+              donemCikisTarihi
+            ),
+          });
+        }
+
+        // Bir sonraki aya geç
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        currentDate.setDate(1);
+      }
+
+      // Dönem kontrolleri
+      if (donemBilgileri.length === 0) {
+        uyarilar.push("Hiçbir dönemde çalışma bulunamadı");
+        oneriler.push("Giriş ve çıkış tarihlerini kontrol edin");
+      } else if (donemBilgileri.length > 12) {
+        uyarilar.push("Çok fazla dönem kapsanıyor (12+ ay)");
+        oneriler.push("Çıkış tarihini kontrol edin");
+      }
+
+      // Özel işyeri kontrolleri
+      if (isyeriTuru === "ozel") {
+        donemBilgileri.forEach((donem, index) => {
+          const donemBaslangic = new Date(donem.donemBaslangic);
+          if (donemBaslangic.getDate() !== 1) {
+            uyarilar.push(
+              `${donem.donemKodu} dönemi özel işyeri için ayın 1'inde başlamalı`
+            );
+          }
+        });
+      }
+
+      // Resmi işyeri kontrolleri
+      if (isyeriTuru === "resmi") {
+        donemBilgileri.forEach((donem, index) => {
+          const donemBaslangic = new Date(donem.donemBaslangic);
+          if (donemBaslangic.getDate() !== 15) {
+            uyarilar.push(
+              `${donem.donemKodu} dönemi resmi işyeri için ayın 15'inde başlamalı`
+            );
+          }
+        });
+      }
+
+      return {
+        isValid: uyarilar.length === 0,
+        donemBilgileri,
+        uyarilar,
+        oneriler,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        donemBilgileri: [],
+        uyarilar: ["Dönem hesaplama hatası"],
+        oneriler: ["Tarih formatını kontrol edin"],
+      };
+    }
+  }
+
+  // Çalışma günü hesaplama yardımcı fonksiyonu
+  private calculateCalismaGunu(baslangic: Date, bitis: Date): number {
+    let calismaGunu = 0;
+    const currentDate = new Date(baslangic);
+
+    while (currentDate <= bitis) {
+      const dayOfWeek = currentDate.getDay();
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        calismaGunu++;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return calismaGunu;
+  }
+
+  // SGK Dönem Türleri
+  getDonemTurleri(): {
+    kod: string;
+    ad: string;
+    aciklama: string;
+    baslangicGunu: number;
+    bitisGunu: number;
+  }[] {
+    return [
+      {
+        kod: "OZEL",
+        ad: "Özel İşyeri",
+        aciklama: "Ayın 1'inde başlar, ayın son günü biter",
+        baslangicGunu: 1,
+        bitisGunu: 0, // Ayın son günü
+      },
+      {
+        kod: "RESMI",
+        ad: "Resmi İşyeri",
+        aciklama: "Ayın 15'inde başlar, bir sonraki ayın 14'ünde biter",
+        baslangicGunu: 15,
+        bitisGunu: 14,
+      },
+    ];
+  }
+
+  // SGK Eksik Gün Nedeni Validasyonu sistemi
+  getEksikGunNedenleri(): {
+    kod: string;
+    ad: string;
+    aciklama: string;
+    sgkKodu: string;
+    uygulama: string[];
+    kategori: "izin" | "rapor" | "disiplin" | "diger";
+  }[] {
+    return [
+      // İzin Nedenleri
+      {
+        kod: "01",
+        ad: "Yıllık İzin",
+        aciklama: "Yasal yıllık izin kullanımı",
+        sgkKodu: "IZIN_001",
+        uygulama: ["SGK bildirimi yapılır", "Ücret kesintisi yok"],
+        kategori: "izin",
+      },
+      {
+        kod: "02",
+        ad: "Hastalık İzni",
+        aciklama: "Sağlık raporu ile hastalık izni",
+        sgkKodu: "IZIN_002",
+        uygulama: ["SGK bildirimi yapılır", "Sağlık raporu gerekli"],
+        kategori: "izin",
+      },
+      {
+        kod: "03",
+        ad: "Doğum İzni",
+        aciklama: "Doğum öncesi ve sonrası izin",
+        sgkKodu: "IZIN_003",
+        uygulama: ["SGK bildirimi yapılır", "Doğum belgesi gerekli"],
+        kategori: "izin",
+      },
+      {
+        kod: "04",
+        ad: "Evlilik İzni",
+        aciklama: "Evlilik nedeniyle izin",
+        sgkKodu: "IZIN_004",
+        uygulama: ["SGK bildirimi yapılır", "Evlilik belgesi gerekli"],
+        kategori: "izin",
+      },
+      {
+        kod: "05",
+        ad: "Ölüm İzni",
+        aciklama: "Yakın akraba ölümü nedeniyle izin",
+        sgkKodu: "IZIN_005",
+        uygulama: ["SGK bildirimi yapılır", "Ölüm belgesi gerekli"],
+        kategori: "izin",
+      },
+      {
+        kod: "06",
+        ad: "Mazeret İzni",
+        aciklama: "Özel mazeret nedeniyle izin",
+        sgkKodu: "IZIN_006",
+        uygulama: ["SGK bildirimi yapılır", "Mazeret belgesi gerekli"],
+        kategori: "izin",
+      },
+
+      // Rapor Nedenleri
+      {
+        kod: "07",
+        ad: "Sağlık Raporu",
+        aciklama: "Doktor raporu ile çalışamama",
+        sgkKodu: "RAPOR_001",
+        uygulama: ["SGK bildirimi yapılır", "Sağlık raporu gerekli"],
+        kategori: "rapor",
+      },
+      {
+        kod: "08",
+        ad: "İş Kazası Raporu",
+        aciklama: "İş kazası nedeniyle çalışamama",
+        sgkKodu: "RAPOR_002",
+        uygulama: ["SGK bildirimi yapılır", "İş kazası raporu gerekli"],
+        kategori: "rapor",
+      },
+      {
+        kod: "09",
+        ad: "Meslek Hastalığı Raporu",
+        aciklama: "Meslek hastalığı nedeniyle çalışamama",
+        sgkKodu: "RAPOR_003",
+        uygulama: ["SGK bildirimi yapılır", "Meslek hastalığı raporu gerekli"],
+        kategori: "rapor",
+      },
+      {
+        kod: "10",
+        ad: "Hamilelik Raporu",
+        aciklama: "Hamilelik nedeniyle çalışamama",
+        sgkKodu: "RAPOR_004",
+        uygulama: ["SGK bildirimi yapılır", "Hamilelik raporu gerekli"],
+        kategori: "rapor",
+      },
+
+      // Disiplin Nedenleri
+      {
+        kod: "11",
+        ad: "Disiplin Cezası",
+        aciklama: "Disiplin cezası nedeniyle çalışamama",
+        sgkKodu: "DISIPLIN_001",
+        uygulama: ["SGK bildirimi yapılır", "Disiplin kararı gerekli"],
+        kategori: "disiplin",
+      },
+      {
+        kod: "12",
+        ad: "Uyarı Cezası",
+        aciklama: "Uyarı cezası nedeniyle çalışamama",
+        sgkKodu: "DISIPLIN_002",
+        uygulama: ["SGK bildirimi yapılır", "Uyarı kararı gerekli"],
+        kategori: "disiplin",
+      },
+      {
+        kod: "13",
+        ad: "Kınama Cezası",
+        aciklama: "Kınama cezası nedeniyle çalışamama",
+        sgkKodu: "DISIPLIN_003",
+        uygulama: ["SGK bildirimi yapılır", "Kınama kararı gerekli"],
+        kategori: "disiplin",
+      },
+
+      // Diğer Nedenler
+      {
+        kod: "14",
+        ad: "Grev",
+        aciklama: "Grev nedeniyle çalışamama",
+        sgkKodu: "DIGER_001",
+        uygulama: ["SGK bildirimi yapılır", "Grev kararı gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "15",
+        ad: "Lokavt",
+        aciklama: "Lokavt nedeniyle çalışamama",
+        sgkKodu: "DIGER_002",
+        uygulama: ["SGK bildirimi yapılır", "Lokavt kararı gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "16",
+        ad: "Askerlik",
+        aciklama: "Askerlik görevi nedeniyle çalışamama",
+        sgkKodu: "DIGER_003",
+        uygulama: ["SGK bildirimi yapılır", "Askerlik belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "17",
+        ad: "Hapishane",
+        aciklama: "Hapishane nedeniyle çalışamama",
+        sgkKodu: "DIGER_004",
+        uygulama: ["SGK bildirimi yapılır", "Hapishane belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "18",
+        ad: "Eğitim",
+        aciklama: "Eğitim nedeniyle çalışamama",
+        sgkKodu: "DIGER_005",
+        uygulama: ["SGK bildirimi yapılır", "Eğitim belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "19",
+        ad: "Seyahat",
+        aciklama: "Seyahat nedeniyle çalışamama",
+        sgkKodu: "DIGER_006",
+        uygulama: ["SGK bildirimi yapılır", "Seyahat belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "20",
+        ad: "Ailevi Nedenler",
+        aciklama: "Ailevi nedenlerle çalışamama",
+        sgkKodu: "DIGER_007",
+        uygulama: ["SGK bildirimi yapılır", "Ailevi neden belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "21",
+        ad: "Kişisel Nedenler",
+        aciklama: "Kişisel nedenlerle çalışamama",
+        sgkKodu: "DIGER_008",
+        uygulama: ["SGK bildirimi yapılır", "Kişisel neden belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "22",
+        ad: "Ulaşım Sorunu",
+        aciklama: "Ulaşım sorunu nedeniyle çalışamama",
+        sgkKodu: "DIGER_009",
+        uygulama: ["SGK bildirimi yapılır", "Ulaşım sorunu belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "23",
+        ad: "Doğal Afet",
+        aciklama: "Doğal afet nedeniyle çalışamama",
+        sgkKodu: "DIGER_010",
+        uygulama: ["SGK bildirimi yapılır", "Doğal afet belgesi gerekli"],
+        kategori: "diger",
+      },
+      {
+        kod: "24",
+        ad: "Diğer",
+        aciklama: "Diğer nedenlerle çalışamama",
+        sgkKodu: "DIGER_011",
+        uygulama: ["SGK bildirimi yapılır", "Neden belgesi gerekli"],
+        kategori: "diger",
+      },
+    ];
+  }
+
+  // SGK Eksik Gün Nedenleri
+  getEksikGunNedenleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "izin" | "rapor" | "disiplin" | "diger";
+    maxSure: number;
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+  }> {
+    return [
+      // İzin Nedenleri
+      {
+        kod: "01",
+        ad: "Yıllık İzin",
+        kategori: "izin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "02",
+        ad: "Doğum İzni",
+        kategori: "izin",
+        maxSure: 16,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "03",
+        ad: "Süt İzni",
+        kategori: "izin",
+        maxSure: 2,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "04",
+        ad: "Babalık İzni",
+        kategori: "izin",
+        maxSure: 10,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "05",
+        ad: "Evlilik İzni",
+        kategori: "izin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "06",
+        ad: "Ölüm İzni",
+        kategori: "izin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "07",
+        ad: "Hac İzni",
+        kategori: "izin",
+        maxSure: 20,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "08",
+        ad: "Umre İzni",
+        kategori: "izin",
+        maxSure: 10,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "09",
+        ad: "Eğitim İzni",
+        kategori: "izin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "10",
+        ad: "Mazeret İzni",
+        kategori: "izin",
+        maxSure: 5,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+
+      // Rapor Nedenleri
+      {
+        kod: "11",
+        ad: "Hastalık Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "12",
+        ad: "Doğum Raporu",
+        kategori: "rapor",
+        maxSure: 16,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "13",
+        ad: "Analık Raporu",
+        kategori: "rapor",
+        maxSure: 8,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "14",
+        ad: "İş Kazası Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "15",
+        ad: "Meslek Hastalığı Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "16",
+        ad: "Gebelik Raporu",
+        kategori: "rapor",
+        maxSure: 8,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "17",
+        ad: "Emzirme Raporu",
+        kategori: "rapor",
+        maxSure: 2,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "18",
+        ad: "Rehabilitasyon Raporu",
+        kategori: "rapor",
+        maxSure: 180,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Disiplin Nedenleri
+      {
+        kod: "19",
+        ad: "Disiplin Cezası",
+        kategori: "disiplin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "20",
+        ad: "Uyarı Cezası",
+        kategori: "disiplin",
+        maxSure: 1,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "21",
+        ad: "Kınama Cezası",
+        kategori: "disiplin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "22",
+        ad: "Geçici İşten Çıkarma",
+        kategori: "disiplin",
+        maxSure: 30,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Diğer Nedenler
+      {
+        kod: "23",
+        ad: "Grev",
+        kategori: "diger",
+        maxSure: 90,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "24",
+        ad: "Lokavt",
+        kategori: "diger",
+        maxSure: 90,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+    ];
+  }
+
+  // SGK Eksik Gün Nedenleri
+  getEksikGunNedenleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "izin" | "rapor" | "disiplin" | "diger";
+    maxSure: number;
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+  }> {
+    return [
+      // İzin Nedenleri
+      {
+        kod: "01",
+        ad: "Yıllık İzin",
+        kategori: "izin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "02",
+        ad: "Doğum İzni",
+        kategori: "izin",
+        maxSure: 16,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "03",
+        ad: "Süt İzni",
+        kategori: "izin",
+        maxSure: 2,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "04",
+        ad: "Babalık İzni",
+        kategori: "izin",
+        maxSure: 10,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "05",
+        ad: "Evlilik İzni",
+        kategori: "izin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "06",
+        ad: "Ölüm İzni",
+        kategori: "izin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "07",
+        ad: "Hac İzni",
+        kategori: "izin",
+        maxSure: 20,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "08",
+        ad: "Umre İzni",
+        kategori: "izin",
+        maxSure: 10,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "09",
+        ad: "Eğitim İzni",
+        kategori: "izin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "10",
+        ad: "Mazeret İzni",
+        kategori: "izin",
+        maxSure: 5,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+
+      // Rapor Nedenleri
+      {
+        kod: "11",
+        ad: "Hastalık Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "12",
+        ad: "Doğum Raporu",
+        kategori: "rapor",
+        maxSure: 16,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "13",
+        ad: "Analık Raporu",
+        kategori: "rapor",
+        maxSure: 8,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "14",
+        ad: "İş Kazası Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "15",
+        ad: "Meslek Hastalığı Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "16",
+        ad: "Gebelik Raporu",
+        kategori: "rapor",
+        maxSure: 8,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "17",
+        ad: "Emzirme Raporu",
+        kategori: "rapor",
+        maxSure: 2,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "18",
+        ad: "Rehabilitasyon Raporu",
+        kategori: "rapor",
+        maxSure: 180,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Disiplin Nedenleri
+      {
+        kod: "19",
+        ad: "Disiplin Cezası",
+        kategori: "disiplin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "20",
+        ad: "Uyarı Cezası",
+        kategori: "disiplin",
+        maxSure: 1,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "21",
+        ad: "Kınama Cezası",
+        kategori: "disiplin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "22",
+        ad: "Geçici İşten Çıkarma",
+        kategori: "disiplin",
+        maxSure: 30,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Diğer Nedenler
+      {
+        kod: "23",
+        ad: "Grev",
+        kategori: "diger",
+        maxSure: 90,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "24",
+        ad: "Lokavt",
+        kategori: "diger",
+        maxSure: 90,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+    ];
+  }
+
+  // SGK Eksik Gün Nedenleri
+  getEksikGunNedenleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "izin" | "rapor" | "disiplin" | "diger";
+    maxSure: number;
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+  }> {
+    return [
+      // İzin Nedenleri
+      {
+        kod: "01",
+        ad: "Yıllık İzin",
+        kategori: "izin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "02",
+        ad: "Doğum İzni",
+        kategori: "izin",
+        maxSure: 16,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "03",
+        ad: "Süt İzni",
+        kategori: "izin",
+        maxSure: 2,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "04",
+        ad: "Babalık İzni",
+        kategori: "izin",
+        maxSure: 10,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "05",
+        ad: "Evlilik İzni",
+        kategori: "izin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "06",
+        ad: "Ölüm İzni",
+        kategori: "izin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "07",
+        ad: "Hac İzni",
+        kategori: "izin",
+        maxSure: 20,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "08",
+        ad: "Umre İzni",
+        kategori: "izin",
+        maxSure: 10,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "09",
+        ad: "Eğitim İzni",
+        kategori: "izin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "10",
+        ad: "Mazeret İzni",
+        kategori: "izin",
+        maxSure: 5,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+
+      // Rapor Nedenleri
+      {
+        kod: "11",
+        ad: "Hastalık Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "12",
+        ad: "Doğum Raporu",
+        kategori: "rapor",
+        maxSure: 16,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "13",
+        ad: "Analık Raporu",
+        kategori: "rapor",
+        maxSure: 8,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "14",
+        ad: "İş Kazası Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "15",
+        ad: "Meslek Hastalığı Raporu",
+        kategori: "rapor",
+        maxSure: 365,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "16",
+        ad: "Gebelik Raporu",
+        kategori: "rapor",
+        maxSure: 8,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "17",
+        ad: "Emzirme Raporu",
+        kategori: "rapor",
+        maxSure: 2,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "18",
+        ad: "Rehabilitasyon Raporu",
+        kategori: "rapor",
+        maxSure: 180,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Disiplin Nedenleri
+      {
+        kod: "19",
+        ad: "Disiplin Cezası",
+        kategori: "disiplin",
+        maxSure: 30,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "20",
+        ad: "Uyarı Cezası",
+        kategori: "disiplin",
+        maxSure: 1,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "21",
+        ad: "Kınama Cezası",
+        kategori: "disiplin",
+        maxSure: 3,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      },
+      {
+        kod: "22",
+        ad: "Geçici İşten Çıkarma",
+        kategori: "disiplin",
+        maxSure: 30,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Diğer Nedenler
+      {
+        kod: "23",
+        ad: "Grev",
+        kategori: "diger",
+        maxSure: 90,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "24",
+        ad: "Lokavt",
+        kategori: "diger",
+        maxSure: 90,
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+    ];
+  }
+
+  // SGK Eksik Gün Nedeni Validasyonu
+  validateEksikGunNedeni(
+    eksikGunNedeni: string,
+    baslangicTarihi: string,
+    bitisTarihi: string,
+    calismaGunu: number
+  ): {
+    isValid: boolean;
+    uyarilar: string[];
+    oneriler: string[];
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+  } {
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+    let sgkBildirimi = true;
+    let belgeGerekli = true;
+
+    try {
+      const eksikGunNedenleri = this.getEksikGunNedenleri();
+      const secilenNeden = eksikGunNedenleri.find(
+        (neden) => neden.kod === eksikGunNedeni
+      );
+
+      if (!secilenNeden) {
+        uyarilar.push("Geçersiz eksik gün nedeni kodu");
+        oneriler.push("Geçerli bir eksik gün nedeni seçin");
+        return {
+          isValid: false,
+          uyarilar,
+          oneriler,
+          sgkBildirimi: false,
+          belgeGerekli: false,
+        };
+      }
+
+      // Tarih kontrolleri
+      const baslangic = new Date(baslangicTarihi);
+      const bitis = new Date(bitisTarihi);
+      const bugun = new Date();
+
+      if (baslangic > bitis) {
+        uyarilar.push("Başlangıç tarihi bitiş tarihinden sonra olamaz");
+        oneriler.push("Tarihleri kontrol edin");
+      }
+
+      if (bitis > bugun) {
+        uyarilar.push("Bitiş tarihi gelecekte olamaz");
+        oneriler.push("Bitiş tarihini kontrol edin");
+      }
+
+      // Çalışma günü kontrolleri
+      if (calismaGunu <= 0) {
+        uyarilar.push("Çalışma günü 0 veya negatif olamaz");
+        oneriler.push("Çalışma gününü kontrol edin");
+      }
+
+      // Kategori bazlı kontroller
+      switch (secilenNeden.kategori) {
+        case "izin":
+          if (calismaGunu > 30) {
+            uyarilar.push("İzin süresi 30 günden fazla olamaz");
+            oneriler.push("İzin süresini kontrol edin");
+          }
+          break;
+        case "rapor":
+          if (calismaGunu > 365) {
+            uyarilar.push("Rapor süresi 365 günden fazla olamaz");
+            oneriler.push("Rapor süresini kontrol edin");
+          }
+          break;
+        case "disiplin":
+          if (calismaGunu > 90) {
+            uyarilar.push("Disiplin cezası süresi 90 günden fazla olamaz");
+            oneriler.push("Disiplin cezası süresini kontrol edin");
+          }
+          break;
+        case "diger":
+          if (calismaGunu > 180) {
+            uyarilar.push("Diğer nedenler için süre 180 günden fazla olamaz");
+            oneriler.push("Süreyi kontrol edin");
+          }
+          break;
+      }
+
+      // Özel durumlar
+      if (secilenNeden.kod === "01" && calismaGunu < 14) {
+        uyarilar.push("Yıllık izin en az 14 gün olmalıdır");
+        oneriler.push("Yıllık izin süresini kontrol edin");
+      }
+
+      if (secilenNeden.kod === "03" && calismaGunu < 105) {
+        uyarilar.push("Doğum izni en az 105 gün olmalıdır");
+        oneriler.push("Doğum izni süresini kontrol edin");
+      }
+
+      return {
+        isValid: uyarilar.length === 0,
+        uyarilar,
+        oneriler,
+        sgkBildirimi,
+        belgeGerekli,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        uyarilar: ["Eksik gün nedeni validasyon hatası"],
+        oneriler: ["Verileri kontrol edin"],
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      };
+    }
+  }
+
+  // SGK Belge Türü Validasyonu sistemi
+  getBelgeTurleri(): {
+    kod: string;
+    ad: string;
+    aciklama: string;
+    kategori: "kimlik" | "saglik" | "egitim" | "calisma" | "diger";
+    zorunlu: boolean;
+    gecerlilikSuresi: number; // gün cinsinden
+    sgkKodu: string;
+  }[] {
+    return [
+      // Kimlik Belgeleri
+      {
+        kod: "01",
+        ad: "Nüfus Cüzdanı",
+        aciklama: "TC Kimlik belgesi",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "KIMLIK_001",
+      },
+      {
+        kod: "02",
+        ad: "Pasaport",
+        aciklama: "Uluslararası kimlik belgesi",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650, // 10 yıl
+        sgkKodu: "KIMLIK_002",
+      },
+      {
+        kod: "03",
+        ad: "Ehliyet",
+        aciklama: "Sürücü belgesi",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650, // 10 yıl
+        sgkKodu: "KIMLIK_003",
+      },
+      {
+        kod: "04",
+        ad: "İkametgah",
+        aciklama: "Adres belgesi",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "KIMLIK_004",
+      },
+
+      // Sağlık Belgeleri
+      {
+        kod: "05",
+        ad: "Sağlık Raporu",
+        aciklama: "İşe uygunluk raporu",
+        kategori: "saglik",
+        zorunlu: true,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "SAGLIK_001",
+      },
+      {
+        kod: "06",
+        ad: "Aşı Kartı",
+        aciklama: "Aşı takip kartı",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "SAGLIK_002",
+      },
+      {
+        kod: "07",
+        ad: "Kan Grubu Belgesi",
+        aciklama: "Kan grubu tespit belgesi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "SAGLIK_003",
+      },
+      {
+        kod: "08",
+        ad: "Psikoteknik Raporu",
+        aciklama: "Psikolojik uygunluk raporu",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "SAGLIK_004",
+      },
+      {
+        kod: "09",
+        ad: "İşitme Testi",
+        aciklama: "İşitme yetisi test raporu",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "SAGLIK_005",
+      },
+      {
+        kod: "10",
+        ad: "Görme Testi",
+        aciklama: "Görme yetisi test raporu",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "SAGLIK_006",
+      },
+
+      // Eğitim Belgeleri
+      {
+        kod: "11",
+        ad: "Diploma",
+        aciklama: "Eğitim diploması",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "EGITIM_001",
+      },
+      {
+        kod: "12",
+        ad: "Sertifika",
+        aciklama: "Mesleki sertifika",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 1095, // 3 yıl
+        sgkKodu: "EGITIM_002",
+      },
+      {
+        kod: "13",
+        ad: "Transkript",
+        aciklama: "Not döküm belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "EGITIM_003",
+      },
+      {
+        kod: "14",
+        ad: "Öğrenci Belgesi",
+        aciklama: "Öğrenci kimlik belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "EGITIM_004",
+      },
+      {
+        kod: "15",
+        ad: "Mezuniyet Belgesi",
+        aciklama: "Mezuniyet belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "EGITIM_005",
+      },
+
+      // Çalışma Belgeleri
+      {
+        kod: "16",
+        ad: "İş Sözleşmesi",
+        aciklama: "İş akdi belgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_001",
+      },
+      {
+        kod: "17",
+        ad: "SGK Giriş Bildirgesi",
+        aciklama: "SGK işe giriş bildirgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_002",
+      },
+      {
+        kod: "18",
+        ad: "SGK Çıkış Bildirgesi",
+        aciklama: "SGK işten çıkış bildirgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_003",
+      },
+      {
+        kod: "19",
+        ad: "Maaş Bordrosu",
+        aciklama: "Ücret bordrosu",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_004",
+      },
+      {
+        kod: "20",
+        ad: "İş Kazası Raporu",
+        aciklama: "İş kazası bildirim raporu",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_005",
+      },
+      {
+        kod: "21",
+        ad: "Meslek Hastalığı Raporu",
+        aciklama: "Meslek hastalığı bildirim raporu",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_006",
+      },
+      {
+        kod: "22",
+        ad: "İşten Çıkış Belgesi",
+        aciklama: "İşten çıkış belgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_007",
+      },
+      {
+        kod: "23",
+        ad: "Referans Mektubu",
+        aciklama: "Önceki işveren referansı",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "CALISMA_008",
+      },
+      {
+        kod: "24",
+        ad: "CV",
+        aciklama: "Özgeçmiş belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "CALISMA_009",
+      },
+      {
+        kod: "25",
+        ad: "Başvuru Formu",
+        aciklama: "İş başvuru formu",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "CALISMA_010",
+      },
+
+      // Diğer Belgeler
+      {
+        kod: "26",
+        ad: "Vesikalık Fotoğraf",
+        aciklama: "Kimlik fotoğrafı",
+        kategori: "diger",
+        zorunlu: true,
+        gecerlilikSuresi: 1095, // 3 yıl
+        sgkKodu: "DIGER_001",
+      },
+      {
+        kod: "27",
+        ad: "Askerlik Belgesi",
+        aciklama: "Askerlik durum belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_002",
+      },
+      {
+        kod: "28",
+        ad: "Adli Sicil Kaydı",
+        aciklama: "Adli sicil belgesi",
+        kategori: "diger",
+        zorunlu: true,
+        gecerlilikSuresi: 90, // 3 ay
+        sgkKodu: "DIGER_003",
+      },
+      {
+        kod: "29",
+        ad: "Evlilik Cüzdanı",
+        aciklama: "Evlilik belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_004",
+      },
+      {
+        kod: "30",
+        ad: "Doğum Belgesi",
+        aciklama: "Doğum kayıt belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_005",
+      },
+      {
+        kod: "31",
+        ad: "Vergi Levhası",
+        aciklama: "Vergi kimlik belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_006",
+      },
+      {
+        kod: "32",
+        ad: "SGK Kartı",
+        aciklama: "SGK kimlik kartı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_007",
+      },
+      {
+        kod: "33",
+        ad: "Banka Hesap Belgesi",
+        aciklama: "Banka hesap bilgi belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "DIGER_008",
+      },
+      {
+        kod: "34",
+        ad: "İBAN Belgesi",
+        aciklama: "İBAN numarası belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_009",
+      },
+      {
+        kod: "35",
+        ad: "Telefon Faturası",
+        aciklama: "Telefon faturası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "DIGER_010",
+      },
+      {
+        kod: "36",
+        ad: "Elektrik Faturası",
+        aciklama: "Elektrik faturası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "DIGER_011",
+      },
+      {
+        kod: "37",
+        ad: "Su Faturası",
+        aciklama: "Su faturası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "DIGER_012",
+      },
+      {
+        kod: "38",
+        ad: "Doğalgaz Faturası",
+        aciklama: "Doğalgaz faturası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "DIGER_013",
+      },
+      {
+        kod: "39",
+        ad: "Kira Kontratı",
+        aciklama: "Kira sözleşmesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_014",
+      },
+      {
+        kod: "40",
+        ad: "Tapu",
+        aciklama: "Tapu belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_015",
+      },
+      {
+        kod: "41",
+        ad: "Sigorta Poliçesi",
+        aciklama: "Sigorta poliçe belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 365, // 1 yıl
+        sgkKodu: "DIGER_016",
+      },
+      {
+        kod: "42",
+        ad: "Araç Ruhsatı",
+        aciklama: "Araç tescil belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_017",
+      },
+      {
+        kod: "43",
+        ad: "Kredi Raporu",
+        aciklama: "Kredi durum raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 90, // 3 ay
+        sgkKodu: "DIGER_018",
+      },
+      {
+        kod: "44",
+        ad: "Banka Referansı",
+        aciklama: "Banka referans belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 30, // 1 ay
+        sgkKodu: "DIGER_019",
+      },
+      {
+        kod: "45",
+        ad: "Muhasebe Belgesi",
+        aciklama: "Muhasebe kayıt belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_020",
+      },
+      {
+        kod: "46",
+        ad: "Noter Belgesi",
+        aciklama: "Noter onaylı belge",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_021",
+      },
+      {
+        kod: "47",
+        ad: "Mahkeme Kararı",
+        aciklama: "Mahkeme karar belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_022",
+      },
+      {
+        kod: "48",
+        ad: "Savcılık Belgesi",
+        aciklama: "Savcılık belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 90, // 3 ay
+        sgkKodu: "DIGER_023",
+      },
+      {
+        kod: "49",
+        ad: "Polis Belgesi",
+        aciklama: "Polis belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 90, // 3 ay
+        sgkKodu: "DIGER_024",
+      },
+      {
+        kod: "50",
+        ad: "Jandarma Belgesi",
+        aciklama: "Jandarma belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 90, // 3 ay
+        sgkKodu: "DIGER_025",
+      },
+      {
+        kod: "51",
+        ad: "Diğer",
+        aciklama: "Diğer belgeler",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0, // Süresiz
+        sgkKodu: "DIGER_026",
+      },
+    ];
+  }
+
+  // SGK Belge Türleri
+  getBelgeTurleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "kimlik" | "saglik" | "egitim" | "calisma" | "diger";
+    zorunlu: boolean;
+    gecerlilikSuresi: number;
+    sgkKodu: string;
+  }> {
+    return [
+      // Kimlik Belgeleri
+      {
+        kod: "01",
+        ad: "Nüfus Cüzdanı",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "NFC",
+      },
+      {
+        kod: "02",
+        ad: "Pasaport",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650,
+        sgkKodu: "PAS",
+      },
+      {
+        kod: "03",
+        ad: "Ehliyet",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650,
+        sgkKodu: "EHL",
+      },
+      {
+        kod: "04",
+        ad: "İkametgah Belgesi",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 30,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "05",
+        ad: "Adli Sicil Kaydı",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 90,
+        sgkKodu: "ASK",
+      },
+
+      // Sağlık Belgeleri
+      {
+        kod: "06",
+        ad: "Sağlık Raporu",
+        kategori: "saglik",
+        zorunlu: true,
+        gecerlilikSuresi: 30,
+        sgkKodu: "SGR",
+      },
+      {
+        kod: "07",
+        ad: "Aşı Kartı",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "ASK",
+      },
+      {
+        kod: "08",
+        ad: "Kan Grubu Belgesi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "KGB",
+      },
+      {
+        kod: "09",
+        ad: "Göz Muayene Raporu",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "GMR",
+      },
+      {
+        kod: "10",
+        ad: "İşitme Testi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "ITT",
+      },
+
+      // Eğitim Belgeleri
+      {
+        kod: "11",
+        ad: "Diploma",
+        kategori: "egitim",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DIP",
+      },
+      {
+        kod: "12",
+        ad: "Transkript",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "TRS",
+      },
+      {
+        kod: "13",
+        ad: "Sertifika",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "SER",
+      },
+      {
+        kod: "14",
+        ad: "Kurs Belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "KRS",
+      },
+      {
+        kod: "15",
+        ad: "Lisans Belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "LIS",
+      },
+
+      // Çalışma Belgeleri
+      {
+        kod: "16",
+        ad: "İş Sözleşmesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ISC",
+      },
+      {
+        kod: "17",
+        ad: "SGK İşe Giriş Bildirgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "SGB",
+      },
+      {
+        kod: "18",
+        ad: "İş Kur Belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 30,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "19",
+        ad: "Çalışma İzni",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "CZI",
+      },
+      {
+        kod: "20",
+        ad: "İş Güvenliği Belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "IGB",
+      },
+
+      // Diğer Belgeler
+      {
+        kod: "21",
+        ad: "Vesikalık Fotoğraf",
+        kategori: "diger",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "VES",
+      },
+      {
+        kod: "22",
+        ad: "Askerlik Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ASB",
+      },
+      {
+        kod: "23",
+        ad: "Evlilik Cüzdanı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EVC",
+      },
+      {
+        kod: "24",
+        ad: "Doğum Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOB",
+      },
+      {
+        kod: "25",
+        ad: "Ölüm Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "OLB",
+      },
+      {
+        kod: "26",
+        ad: "Hac Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "HAB",
+      },
+      {
+        kod: "27",
+        ad: "Umre Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "UMB",
+      },
+      {
+        kod: "28",
+        ad: "Eğitim Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EGB",
+      },
+      {
+        kod: "29",
+        ad: "Mazeret Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "MAB",
+      },
+      {
+        kod: "30",
+        ad: "Hastalık Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "HAR",
+      },
+      {
+        kod: "31",
+        ad: "Doğum Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOR",
+      },
+      {
+        kod: "32",
+        ad: "Analık Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ANR",
+      },
+      {
+        kod: "33",
+        ad: "İş Kazası Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IKR",
+      },
+      {
+        kod: "34",
+        ad: "Meslek Hastalığı Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "MHR",
+      },
+      {
+        kod: "35",
+        ad: "Gebelik Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GER",
+      },
+      {
+        kod: "36",
+        ad: "Emzirme Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EMR",
+      },
+      {
+        kod: "37",
+        ad: "Rehabilitasyon Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "RER",
+      },
+      {
+        kod: "38",
+        ad: "Disiplin Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DIC",
+      },
+      {
+        kod: "39",
+        ad: "Uyarı Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "UYC",
+      },
+      {
+        kod: "40",
+        ad: "Kınama Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "KIC",
+      },
+      {
+        kod: "41",
+        ad: "Geçici İşten Çıkarma",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GIC",
+      },
+      {
+        kod: "42",
+        ad: "Grev",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GRE",
+      },
+      {
+        kod: "43",
+        ad: "Lokavt",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "LOK",
+      },
+      {
+        kod: "44",
+        ad: "İş Kur Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "45",
+        ad: "Çalışma İzni",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "CZI",
+      },
+      {
+        kod: "46",
+        ad: "İş Güvenliği Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IGB",
+      },
+      {
+        kod: "47",
+        ad: "Vesikalık Fotoğraf",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "VES",
+      },
+      {
+        kod: "48",
+        ad: "Askerlik Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ASB",
+      },
+      {
+        kod: "49",
+        ad: "Evlilik Cüzdanı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EVC",
+      },
+      {
+        kod: "50",
+        ad: "Doğum Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOB",
+      },
+      {
+        kod: "51",
+        ad: "Ölüm Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "OLB",
+      },
+    ];
+  }
+
+  // SGK Belge Türleri
+  getBelgeTurleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "kimlik" | "saglik" | "egitim" | "calisma" | "diger";
+    zorunlu: boolean;
+    gecerlilikSuresi: number;
+    sgkKodu: string;
+  }> {
+    return [
+      // Kimlik Belgeleri
+      {
+        kod: "01",
+        ad: "Nüfus Cüzdanı",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "NFC",
+      },
+      {
+        kod: "02",
+        ad: "Pasaport",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650,
+        sgkKodu: "PAS",
+      },
+      {
+        kod: "03",
+        ad: "Ehliyet",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650,
+        sgkKodu: "EHL",
+      },
+      {
+        kod: "04",
+        ad: "İkametgah Belgesi",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 30,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "05",
+        ad: "Adli Sicil Kaydı",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 90,
+        sgkKodu: "ASK",
+      },
+
+      // Sağlık Belgeleri
+      {
+        kod: "06",
+        ad: "Sağlık Raporu",
+        kategori: "saglik",
+        zorunlu: true,
+        gecerlilikSuresi: 30,
+        sgkKodu: "SGR",
+      },
+      {
+        kod: "07",
+        ad: "Aşı Kartı",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "ASK",
+      },
+      {
+        kod: "08",
+        ad: "Kan Grubu Belgesi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "KGB",
+      },
+      {
+        kod: "09",
+        ad: "Göz Muayene Raporu",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "GMR",
+      },
+      {
+        kod: "10",
+        ad: "İşitme Testi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "ITT",
+      },
+
+      // Eğitim Belgeleri
+      {
+        kod: "11",
+        ad: "Diploma",
+        kategori: "egitim",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DIP",
+      },
+      {
+        kod: "12",
+        ad: "Transkript",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "TRS",
+      },
+      {
+        kod: "13",
+        ad: "Sertifika",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "SER",
+      },
+      {
+        kod: "14",
+        ad: "Kurs Belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "KRS",
+      },
+      {
+        kod: "15",
+        ad: "Lisans Belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "LIS",
+      },
+
+      // Çalışma Belgeleri
+      {
+        kod: "16",
+        ad: "İş Sözleşmesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ISC",
+      },
+      {
+        kod: "17",
+        ad: "SGK İşe Giriş Bildirgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "SGB",
+      },
+      {
+        kod: "18",
+        ad: "İş Kur Belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 30,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "19",
+        ad: "Çalışma İzni",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "CZI",
+      },
+      {
+        kod: "20",
+        ad: "İş Güvenliği Belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "IGB",
+      },
+
+      // Diğer Belgeler
+      {
+        kod: "21",
+        ad: "Vesikalık Fotoğraf",
+        kategori: "diger",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "VES",
+      },
+      {
+        kod: "22",
+        ad: "Askerlik Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ASB",
+      },
+      {
+        kod: "23",
+        ad: "Evlilik Cüzdanı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EVC",
+      },
+      {
+        kod: "24",
+        ad: "Doğum Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOB",
+      },
+      {
+        kod: "25",
+        ad: "Ölüm Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "OLB",
+      },
+      {
+        kod: "26",
+        ad: "Hac Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "HAB",
+      },
+      {
+        kod: "27",
+        ad: "Umre Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "UMB",
+      },
+      {
+        kod: "28",
+        ad: "Eğitim Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EGB",
+      },
+      {
+        kod: "29",
+        ad: "Mazeret Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "MAB",
+      },
+      {
+        kod: "30",
+        ad: "Hastalık Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "HAR",
+      },
+      {
+        kod: "31",
+        ad: "Doğum Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOR",
+      },
+      {
+        kod: "32",
+        ad: "Analık Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ANR",
+      },
+      {
+        kod: "33",
+        ad: "İş Kazası Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IKR",
+      },
+      {
+        kod: "34",
+        ad: "Meslek Hastalığı Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "MHR",
+      },
+      {
+        kod: "35",
+        ad: "Gebelik Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GER",
+      },
+      {
+        kod: "36",
+        ad: "Emzirme Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EMR",
+      },
+      {
+        kod: "37",
+        ad: "Rehabilitasyon Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "RER",
+      },
+      {
+        kod: "38",
+        ad: "Disiplin Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DIC",
+      },
+      {
+        kod: "39",
+        ad: "Uyarı Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "UYC",
+      },
+      {
+        kod: "40",
+        ad: "Kınama Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "KIC",
+      },
+      {
+        kod: "41",
+        ad: "Geçici İşten Çıkarma",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GIC",
+      },
+      {
+        kod: "42",
+        ad: "Grev",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GRE",
+      },
+      {
+        kod: "43",
+        ad: "Lokavt",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "LOK",
+      },
+      {
+        kod: "44",
+        ad: "İş Kur Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "45",
+        ad: "Çalışma İzni",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "CZI",
+      },
+      {
+        kod: "46",
+        ad: "İş Güvenliği Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IGB",
+      },
+      {
+        kod: "47",
+        ad: "Vesikalık Fotoğraf",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "VES",
+      },
+      {
+        kod: "48",
+        ad: "Askerlik Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ASB",
+      },
+      {
+        kod: "49",
+        ad: "Evlilik Cüzdanı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EVC",
+      },
+      {
+        kod: "50",
+        ad: "Doğum Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOB",
+      },
+      {
+        kod: "51",
+        ad: "Ölüm Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "OLB",
+      },
+    ];
+  }
+
+  // SGK Belge Türleri
+  getBelgeTurleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "kimlik" | "saglik" | "egitim" | "calisma" | "diger";
+    zorunlu: boolean;
+    gecerlilikSuresi: number;
+    sgkKodu: string;
+  }> {
+    return [
+      // Kimlik Belgeleri
+      {
+        kod: "01",
+        ad: "Nüfus Cüzdanı",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "NFC",
+      },
+      {
+        kod: "02",
+        ad: "Pasaport",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650,
+        sgkKodu: "PAS",
+      },
+      {
+        kod: "03",
+        ad: "Ehliyet",
+        kategori: "kimlik",
+        zorunlu: false,
+        gecerlilikSuresi: 3650,
+        sgkKodu: "EHL",
+      },
+      {
+        kod: "04",
+        ad: "İkametgah Belgesi",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 30,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "05",
+        ad: "Adli Sicil Kaydı",
+        kategori: "kimlik",
+        zorunlu: true,
+        gecerlilikSuresi: 90,
+        sgkKodu: "ASK",
+      },
+
+      // Sağlık Belgeleri
+      {
+        kod: "06",
+        ad: "Sağlık Raporu",
+        kategori: "saglik",
+        zorunlu: true,
+        gecerlilikSuresi: 30,
+        sgkKodu: "SGR",
+      },
+      {
+        kod: "07",
+        ad: "Aşı Kartı",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "ASK",
+      },
+      {
+        kod: "08",
+        ad: "Kan Grubu Belgesi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "KGB",
+      },
+      {
+        kod: "09",
+        ad: "Göz Muayene Raporu",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "GMR",
+      },
+      {
+        kod: "10",
+        ad: "İşitme Testi",
+        kategori: "saglik",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "ITT",
+      },
+
+      // Eğitim Belgeleri
+      {
+        kod: "11",
+        ad: "Diploma",
+        kategori: "egitim",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DIP",
+      },
+      {
+        kod: "12",
+        ad: "Transkript",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "TRS",
+      },
+      {
+        kod: "13",
+        ad: "Sertifika",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "SER",
+      },
+      {
+        kod: "14",
+        ad: "Kurs Belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "KRS",
+      },
+      {
+        kod: "15",
+        ad: "Lisans Belgesi",
+        kategori: "egitim",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "LIS",
+      },
+
+      // Çalışma Belgeleri
+      {
+        kod: "16",
+        ad: "İş Sözleşmesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ISC",
+      },
+      {
+        kod: "17",
+        ad: "SGK İşe Giriş Bildirgesi",
+        kategori: "calisma",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "SGB",
+      },
+      {
+        kod: "18",
+        ad: "İş Kur Belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 30,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "19",
+        ad: "Çalışma İzni",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "CZI",
+      },
+      {
+        kod: "20",
+        ad: "İş Güvenliği Belgesi",
+        kategori: "calisma",
+        zorunlu: false,
+        gecerlilikSuresi: 365,
+        sgkKodu: "IGB",
+      },
+
+      // Diğer Belgeler
+      {
+        kod: "21",
+        ad: "Vesikalık Fotoğraf",
+        kategori: "diger",
+        zorunlu: true,
+        gecerlilikSuresi: 0,
+        sgkKodu: "VES",
+      },
+      {
+        kod: "22",
+        ad: "Askerlik Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ASB",
+      },
+      {
+        kod: "23",
+        ad: "Evlilik Cüzdanı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EVC",
+      },
+      {
+        kod: "24",
+        ad: "Doğum Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOB",
+      },
+      {
+        kod: "25",
+        ad: "Ölüm Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "OLB",
+      },
+      {
+        kod: "26",
+        ad: "Hac Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "HAB",
+      },
+      {
+        kod: "27",
+        ad: "Umre Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "UMB",
+      },
+      {
+        kod: "28",
+        ad: "Eğitim Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EGB",
+      },
+      {
+        kod: "29",
+        ad: "Mazeret Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "MAB",
+      },
+      {
+        kod: "30",
+        ad: "Hastalık Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "HAR",
+      },
+      {
+        kod: "31",
+        ad: "Doğum Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOR",
+      },
+      {
+        kod: "32",
+        ad: "Analık Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ANR",
+      },
+      {
+        kod: "33",
+        ad: "İş Kazası Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IKR",
+      },
+      {
+        kod: "34",
+        ad: "Meslek Hastalığı Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "MHR",
+      },
+      {
+        kod: "35",
+        ad: "Gebelik Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GER",
+      },
+      {
+        kod: "36",
+        ad: "Emzirme Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EMR",
+      },
+      {
+        kod: "37",
+        ad: "Rehabilitasyon Raporu",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "RER",
+      },
+      {
+        kod: "38",
+        ad: "Disiplin Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DIC",
+      },
+      {
+        kod: "39",
+        ad: "Uyarı Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "UYC",
+      },
+      {
+        kod: "40",
+        ad: "Kınama Cezası",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "KIC",
+      },
+      {
+        kod: "41",
+        ad: "Geçici İşten Çıkarma",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GIC",
+      },
+      {
+        kod: "42",
+        ad: "Grev",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "GRE",
+      },
+      {
+        kod: "43",
+        ad: "Lokavt",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "LOK",
+      },
+      {
+        kod: "44",
+        ad: "İş Kur Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IKB",
+      },
+      {
+        kod: "45",
+        ad: "Çalışma İzni",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "CZI",
+      },
+      {
+        kod: "46",
+        ad: "İş Güvenliği Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "IGB",
+      },
+      {
+        kod: "47",
+        ad: "Vesikalık Fotoğraf",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "VES",
+      },
+      {
+        kod: "48",
+        ad: "Askerlik Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "ASB",
+      },
+      {
+        kod: "49",
+        ad: "Evlilik Cüzdanı",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "EVC",
+      },
+      {
+        kod: "50",
+        ad: "Doğum Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "DOB",
+      },
+      {
+        kod: "51",
+        ad: "Ölüm Belgesi",
+        kategori: "diger",
+        zorunlu: false,
+        gecerlilikSuresi: 0,
+        sgkKodu: "OLB",
+      },
+    ];
+  }
+
+  // SGK Belge Türü Validasyonu
+  validateBelgeTuru(
+    belgeKodu: string,
+    verilisTarihi: string,
+    gecerlilikTarihi?: string
+  ): {
+    isValid: boolean;
+    uyarilar: string[];
+    oneriler: string[];
+    gecerlilikDurumu:
+      | "gecerli"
+      | "suresi_dolmus"
+      | "suresi_dolacak"
+      | "belirsiz";
+    kalanGun: number;
+  } {
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+
+    try {
+      const belgeTurleri = this.getBelgeTurleri();
+      const secilenBelge = belgeTurleri.find(
+        (belge) => belge.kod === belgeKodu
+      );
+
+      if (!secilenBelge) {
+        uyarilar.push("Geçersiz belge türü kodu");
+        oneriler.push("Geçerli bir belge türü seçin");
+        return {
+          isValid: false,
+          uyarilar,
+          oneriler,
+          gecerlilikDurumu: "belirsiz",
+          kalanGun: 0,
+        };
+      }
+
+      const verilis = new Date(verilisTarihi);
+      const bugun = new Date();
+      const gecerlilik = gecerlilikTarihi ? new Date(gecerlilikTarihi) : null;
+
+      // Geçerlilik süresi hesaplama
+      let kalanGun = 0;
+      let gecerlilikDurumu:
+        | "gecerli"
+        | "suresi_dolmus"
+        | "suresi_dolacak"
+        | "belirsiz" = "belirsiz";
+
+      if (secilenBelge.gecerlilikSuresi === 0) {
+        // Süresiz belge
+        gecerlilikDurumu = "gecerli";
+        kalanGun = -1; // Süresiz
+      } else {
+        // Süreli belge
+        const bitisTarihi = new Date(
+          verilis.getTime() +
+            secilenBelge.gecerlilikSuresi * 24 * 60 * 60 * 1000
+        );
+        kalanGun = Math.ceil(
+          (bitisTarihi.getTime() - bugun.getTime()) / (24 * 60 * 60 * 1000)
+        );
+
+        if (kalanGun < 0) {
+          gecerlilikDurumu = "suresi_dolmus";
+          uyarilar.push(`${secilenBelge.ad} belgesinin süresi dolmuş`);
+          oneriler.push("Belgeyi yenileyin");
+        } else if (kalanGun <= 30) {
+          gecerlilikDurumu = "suresi_dolacak";
+          uyarilar.push(
+            `${secilenBelge.ad} belgesinin süresi ${kalanGun} gün sonra dolacak`
+          );
+          oneriler.push("Belgeyi yenilemeyi planlayın");
+        } else {
+          gecerlilikDurumu = "gecerli";
+        }
+      }
+
+      // Manuel geçerlilik tarihi kontrolü
+      if (gecerlilik) {
+        const manuelKalanGun = Math.ceil(
+          (gecerlilik.getTime() - bugun.getTime()) / (24 * 60 * 60 * 1000)
+        );
+        if (manuelKalanGun < 0) {
+          gecerlilikDurumu = "suresi_dolmus";
+          uyarilar.push("Manuel geçerlilik tarihi geçmiş");
+          oneriler.push("Geçerlilik tarihini kontrol edin");
+        } else if (manuelKalanGun <= 30) {
+          gecerlilikDurumu = "suresi_dolacak";
+          uyarilar.push(
+            `Manuel geçerlilik tarihi ${manuelKalanGun} gün sonra dolacak`
+          );
+          oneriler.push("Belgeyi yenilemeyi planlayın");
+        }
+        kalanGun = manuelKalanGun;
+      }
+
+      // Zorunlu belge kontrolleri
+      if (secilenBelge.zorunlu && gecerlilikDurumu === "suresi_dolmus") {
+        uyarilar.push(`${secilenBelge.ad} zorunlu belge ve süresi dolmuş`);
+        oneriler.push("Zorunlu belgeyi derhal yenileyin");
+      }
+
+      return {
+        isValid: uyarilar.length === 0,
+        uyarilar,
+        oneriler,
+        gecerlilikDurumu,
+        kalanGun,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        uyarilar: ["Belge türü validasyon hatası"],
+        oneriler: ["Verileri kontrol edin"],
+        gecerlilikDurumu: "belirsiz",
+        kalanGun: 0,
+      };
+    }
+  }
+
+  // SGK Belge Türü Otomatik Seçim
+  getOtomatikBelgeSecimi(
+    personelTuru: "guvenlik" | "temizlik" | "kantin" | "diger",
+    pozisyon: string,
+    yas: number
+  ): string[] {
+    const otomatikBelgeler: string[] = [];
+
+    // Temel zorunlu belgeler (herkes için)
+    otomatikBelgeler.push("01"); // Nüfus Cüzdanı
+    otomatikBelgeler.push("04"); // İkametgah
+    otomatikBelgeler.push("05"); // Sağlık Raporu
+    otomatikBelgeler.push("16"); // İş Sözleşmesi
+    otomatikBelgeler.push("17"); // SGK Giriş Bildirgesi
+    otomatikBelgeler.push("26"); // Vesikalık Fotoğraf
+    otomatikBelgeler.push("28"); // Adli Sicil Kaydı
+
+    // Güvenlik personeli için özel belgeler
+    if (personelTuru === "guvenlik") {
+      otomatikBelgeler.push("08"); // Psikoteknik Raporu
+      otomatikBelgeler.push("09"); // İşitme Testi
+      otomatikBelgeler.push("10"); // Görme Testi
+      otomatikBelgeler.push("12"); // Sertifika (Güvenlik)
+    }
+
+    // Yaş bazlı belgeler
+    if (yas >= 18 && yas <= 35) {
+      otomatikBelgeler.push("27"); // Askerlik Belgesi
+    }
+
+    // Pozisyon bazlı belgeler
+    if (
+      pozisyon.toLowerCase().includes("şoför") ||
+      pozisyon.toLowerCase().includes("sürücü")
+    ) {
+      otomatikBelgeler.push("03"); // Ehliyet
+      otomatikBelgeler.push("42"); // Araç Ruhsatı
+    }
+
+    if (
+      pozisyon.toLowerCase().includes("muhasebe") ||
+      pozisyon.toLowerCase().includes("mali")
+    ) {
+      otomatikBelgeler.push("11"); // Diploma
+      otomatikBelgeler.push("45"); // Muhasebe Belgesi
+    }
+
+    return [...new Set(otomatikBelgeler)]; // Tekrarları kaldır
+  }
+
+  // SGK İşten Çıkış Nedeni Validasyonu sistemi
+  getIstenCikisNedenleri(): {
+    kod: string;
+    ad: string;
+    aciklama: string;
+    kategori: "istifa" | "fesih" | "emeklilik" | "nakil" | "diger";
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+    sgkKodu: string;
+  }[] {
+    return [
+      // İstifa Nedenleri
+      {
+        kod: "01",
+        ad: "Kendi İsteği",
+        aciklama: "Çalışanın kendi isteği ile işten ayrılması",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "ISTIFA_001",
+      },
+      {
+        kod: "02",
+        ad: "Başka İşe Geçiş",
+        aciklama: "Başka bir işyerine geçiş nedeniyle ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "ISTIFA_002",
+      },
+      {
+        kod: "03",
+        ad: "Eğitim Nedeni",
+        aciklama: "Eğitim nedeniyle işten ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "ISTIFA_003",
+      },
+      {
+        kod: "04",
+        ad: "Sağlık Nedeni",
+        aciklama: "Sağlık sorunları nedeniyle ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "ISTIFA_004",
+      },
+      {
+        kod: "05",
+        ad: "Ailevi Nedenler",
+        aciklama: "Ailevi nedenlerle ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "ISTIFA_005",
+      },
+      {
+        kod: "06",
+        ad: "Evlilik",
+        aciklama: "Evlilik nedeniyle ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "ISTIFA_006",
+      },
+      {
+        kod: "07",
+        ad: "Göç",
+        aciklama: "Göç nedeniyle ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "ISTIFA_007",
+      },
+      {
+        kod: "08",
+        ad: "Askerlik",
+        aciklama: "Askerlik görevi nedeniyle ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "ISTIFA_008",
+      },
+
+      // Fesih Nedenleri
+      {
+        kod: "09",
+        ad: "İşveren Feshi",
+        aciklama: "İşveren tarafından iş sözleşmesinin feshedilmesi",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_001",
+      },
+      {
+        kod: "10",
+        ad: "Disiplin Cezası",
+        aciklama: "Disiplin cezası nedeniyle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_002",
+      },
+      {
+        kod: "11",
+        ad: "İş Kazası",
+        aciklama: "İş kazası nedeniyle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_003",
+      },
+      {
+        kod: "12",
+        ad: "Meslek Hastalığı",
+        aciklama: "Meslek hastalığı nedeniyle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_004",
+      },
+      {
+        kod: "13",
+        ad: "Performans Yetersizliği",
+        aciklama: "Performans yetersizliği nedeniyle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_005",
+      },
+      {
+        kod: "14",
+        ad: "İşyeri Kapanması",
+        aciklama: "İşyerinin kapanması nedeniyle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_006",
+      },
+      {
+        kod: "15",
+        ad: "Ekonomik Nedenler",
+        aciklama: "Ekonomik nedenlerle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_007",
+      },
+      {
+        kod: "16",
+        ad: "Teknolojik Değişim",
+        aciklama: "Teknolojik değişim nedeniyle fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "FESIH_008",
+      },
+
+      // Emeklilik Nedenleri
+      {
+        kod: "17",
+        ad: "Yaşlılık Emekliliği",
+        aciklama: "Yaşlılık emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "EMEKLILIK_001",
+      },
+      {
+        kod: "18",
+        ad: "Malullük Emekliliği",
+        aciklama: "Malullük emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "EMEKLILIK_002",
+      },
+      {
+        kod: "19",
+        ad: "Vazife Malullüğü",
+        aciklama: "Vazife malullüğü",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "EMEKLILIK_003",
+      },
+      {
+        kod: "20",
+        ad: "Erken Emeklilik",
+        aciklama: "Erken emeklilik",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "EMEKLILIK_004",
+      },
+      {
+        kod: "21",
+        ad: "Ölüm",
+        aciklama: "Çalışanın ölümü",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "EMEKLILIK_005",
+      },
+
+      // Nakil Nedenleri
+      {
+        kod: "22",
+        ad: "Aynı İşveren Nakil",
+        aciklama: "Aynı işverenin farklı işyerine nakil",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "NAKIL_001",
+      },
+      {
+        kod: "23",
+        ad: "Farklı İşveren Nakil",
+        aciklama: "Farklı işverene nakil",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "NAKIL_002",
+      },
+      {
+        kod: "24",
+        ad: "Şube Değişikliği",
+        aciklama: "Şube değişikliği nedeniyle nakil",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "NAKIL_003",
+      },
+      {
+        kod: "25",
+        ad: "Pozisyon Değişikliği",
+        aciklama: "Pozisyon değişikliği nedeniyle nakil",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+        sgkKodu: "NAKIL_004",
+      },
+
+      // Diğer Nedenler
+      {
+        kod: "26",
+        ad: "Sözleşme Süresi Dolması",
+        aciklama: "Belirli süreli sözleşmenin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_001",
+      },
+      {
+        kod: "27",
+        ad: "Proje Tamamlanması",
+        aciklama: "Proje tamamlanması nedeniyle ayrılma",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_002",
+      },
+      {
+        kod: "28",
+        ad: "Sezon Sonu",
+        aciklama: "Sezon sonu nedeniyle ayrılma",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_003",
+      },
+      {
+        kod: "29",
+        ad: "Geçici İş Sonu",
+        aciklama: "Geçici işin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_004",
+      },
+      {
+        kod: "30",
+        ad: "Staj Sonu",
+        aciklama: "Staj süresinin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_005",
+      },
+      {
+        kod: "31",
+        ad: "Öğrenci İşi Sonu",
+        aciklama: "Öğrenci işinin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_006",
+      },
+      {
+        kod: "32",
+        ad: "Part-time İş Sonu",
+        aciklama: "Part-time işin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_007",
+      },
+      {
+        kod: "33",
+        ad: "Freelance İş Sonu",
+        aciklama: "Freelance işin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_008",
+      },
+      {
+        kod: "34",
+        ad: "Consultant İş Sonu",
+        aciklama: "Consultant işin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_009",
+      },
+      {
+        kod: "35",
+        ad: "Contract İş Sonu",
+        aciklama: "Contract işin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_010",
+      },
+      {
+        kod: "36",
+        ad: "Trial Period Sonu",
+        aciklama: "Deneme süresinin sona ermesi",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_011",
+      },
+      {
+        kod: "37",
+        ad: "Diğer",
+        aciklama: "Diğer nedenlerle ayrılma",
+        kategori: "diger",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+        sgkKodu: "DIGER_012",
+      },
+    ];
+  }
+
+  // SGK İşten Çıkış Nedenleri
+  getIstenCikisNedenleri(): Array<{
+    kod: string;
+    ad: string;
+    kategori: "istifa" | "fesih" | "emeklilik" | "nakil" | "diger";
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+  }> {
+    return [
+      // İstifa Nedenleri
+      {
+        kod: "01",
+        ad: "İstifa",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "02",
+        ad: "Kendi İsteğiyle Ayrılma",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "03",
+        ad: "İstifa Dilekçesi",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "04",
+        ad: "İstifa Mektubu",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "05",
+        ad: "İstifa Bildirimi",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "06",
+        ad: "İstifa Talebi",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "07",
+        ad: "İstifa Kararı",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "08",
+        ad: "İstifa Onayı",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "09",
+        ad: "İstifa İmzası",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+      {
+        kod: "10",
+        ad: "İstifa Tarihi",
+        kategori: "istifa",
+        sgkBildirimi: true,
+        belgeGerekli: false,
+      },
+
+      // Fesih Nedenleri
+      {
+        kod: "11",
+        ad: "İş Sözleşmesi Feshi",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "12",
+        ad: "Disiplin Feshi",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "13",
+        ad: "Performans Feshi",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "14",
+        ad: "Uyumsuzluk Feshi",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "15",
+        ad: "Güven Feshi",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "16",
+        ad: "Ekonomik Fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "17",
+        ad: "Teknik Fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "18",
+        ad: "Yapısal Fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "19",
+        ad: "Organizasyonel Fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "20",
+        ad: "Stratejik Fesih",
+        kategori: "fesih",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Emeklilik Nedenleri
+      {
+        kod: "21",
+        ad: "Yaşlılık Emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "22",
+        ad: "Malullük Emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "23",
+        ad: "Erken Emeklilik",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "24",
+        ad: "Kısmi Emeklilik",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "25",
+        ad: "Tam Emeklilik",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "26",
+        ad: "Özel Emeklilik",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "27",
+        ad: "Meslek Emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "28",
+        ad: "Hizmet Emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "29",
+        ad: "Yaş Emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "30",
+        ad: "Prim Emekliliği",
+        kategori: "emeklilik",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+
+      // Nakil Nedenleri
+      {
+        kod: "31",
+        ad: "İşyeri Nakli",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "32",
+        ad: "Şube Nakli",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "33",
+        ad: "Departman Nakli",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "34",
+        ad: "Pozisyon Nakli",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "35",
+        ad: "Görev Nakli",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "36",
+        ad: "Lokasyon Nakli",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+      {
+        kod: "37",
+        ad: "Diğer Nakil",
+        kategori: "nakil",
+        sgkBildirimi: true,
+        belgeGerekli: true,
+      },
+    ];
+  }
+
+  // SGK Otomatik Belge Seçimi
+  getOtomatikBelgeSecimi(
+    personelTuru: string,
+    pozisyon: string,
+    yas: number
+  ): Array<{
+    belgeKodu: string;
+    belgeAdi: string;
+    zorunlu: boolean;
+    sebep: string;
+  }> {
+    const belgeler: Array<{
+      belgeKodu: string;
+      belgeAdi: string;
+      zorunlu: boolean;
+      sebep: string;
+    }> = [];
+
+    // Temel belgeler (herkes için)
+    belgeler.push(
+      {
+        belgeKodu: "01",
+        belgeAdi: "Nüfus Cüzdanı",
+        zorunlu: true,
+        sebep: "Kimlik doğrulama için zorunlu",
+      },
+      {
+        belgeKodu: "04",
+        belgeAdi: "İkametgah Belgesi",
+        zorunlu: true,
+        sebep: "Adres doğrulama için zorunlu",
+      },
+      {
+        belgeKodu: "05",
+        belgeAdi: "Adli Sicil Kaydı",
+        zorunlu: true,
+        sebep: "Güvenlik kontrolü için zorunlu",
+      },
+      {
+        belgeKodu: "06",
+        belgeAdi: "Sağlık Raporu",
+        zorunlu: true,
+        sebep: "İşe uygunluk için zorunlu",
+      },
+      {
+        belgeKodu: "11",
+        belgeAdi: "Diploma",
+        zorunlu: true,
+        sebep: "Eğitim seviyesi için zorunlu",
+      },
+      {
+        belgeKodu: "16",
+        belgeAdi: "İş Sözleşmesi",
+        zorunlu: true,
+        sebep: "Çalışma koşulları için zorunlu",
+      },
+      {
+        belgeKodu: "17",
+        belgeAdi: "SGK İşe Giriş Bildirgesi",
+        zorunlu: true,
+        sebep: "SGK bildirimi için zorunlu",
+      },
+      {
+        belgeKodu: "21",
+        belgeAdi: "Vesikalık Fotoğraf",
+        zorunlu: true,
+        sebep: "Kimlik kartı için zorunlu",
+      }
+    );
+
+    // Yaş bazlı belgeler
+    if (yas >= 18 && yas <= 65) {
+      belgeler.push({
+        belgeKodu: "22",
+        belgeAdi: "Askerlik Belgesi",
+        zorunlu: true,
+        sebep: "Askerlik durumu için zorunlu",
+      });
+    }
+
+    // Pozisyon bazlı belgeler
+    if (pozisyon.toLowerCase().includes("güvenlik")) {
+      belgeler.push(
+        {
+          belgeKodu: "19",
+          belgeAdi: "Çalışma İzni",
+          zorunlu: true,
+          sebep: "Güvenlik sektörü için zorunlu",
+        },
+        {
+          belgeKodu: "20",
+          belgeAdi: "İş Güvenliği Belgesi",
+          zorunlu: true,
+          sebep: "Güvenlik eğitimi için zorunlu",
+        }
+      );
+    }
+
+    if (pozisyon.toLowerCase().includes("şoför")) {
+      belgeler.push({
+        belgeKodu: "03",
+        belgeAdi: "Ehliyet",
+        zorunlu: true,
+        sebep: "Sürücülük için zorunlu",
+      });
+    }
+
+    if (pozisyon.toLowerCase().includes("muhasebe")) {
+      belgeler.push({
+        belgeKodu: "13",
+        belgeAdi: "Sertifika",
+        zorunlu: false,
+        sebep: "Muhasebe eğitimi için önerilen",
+      });
+    }
+
+    // Personel türü bazlı belgeler
+    if (personelTuru.toLowerCase().includes("evli")) {
+      belgeler.push({
+        belgeKodu: "23",
+        belgeAdi: "Evlilik Cüzdanı",
+        zorunlu: false,
+        sebep: "Evlilik durumu için önerilen",
+      });
+    }
+
+    if (personelTuru.toLowerCase().includes("çocuk")) {
+      belgeler.push({
+        belgeKodu: "24",
+        belgeAdi: "Doğum Belgesi",
+        zorunlu: false,
+        sebep: "Çocuk bilgisi için önerilen",
+      });
+    }
+
+    return belgeler;
+  }
+
+  // SGK Otomatik Belge Seçimi
+  getOtomatikBelgeSecimi(
+    personelTuru: string,
+    pozisyon: string,
+    yas: number
+  ): Array<{
+    belgeKodu: string;
+    belgeAdi: string;
+    zorunlu: boolean;
+    sebep: string;
+  }> {
+    const belgeler: Array<{
+      belgeKodu: string;
+      belgeAdi: string;
+      zorunlu: boolean;
+      sebep: string;
+    }> = [];
+
+    // Temel belgeler (herkes için)
+    belgeler.push(
+      {
+        belgeKodu: "01",
+        belgeAdi: "Nüfus Cüzdanı",
+        zorunlu: true,
+        sebep: "Kimlik doğrulama için zorunlu",
+      },
+      {
+        belgeKodu: "04",
+        belgeAdi: "İkametgah Belgesi",
+        zorunlu: true,
+        sebep: "Adres doğrulama için zorunlu",
+      },
+      {
+        belgeKodu: "05",
+        belgeAdi: "Adli Sicil Kaydı",
+        zorunlu: true,
+        sebep: "Güvenlik kontrolü için zorunlu",
+      },
+      {
+        belgeKodu: "06",
+        belgeAdi: "Sağlık Raporu",
+        zorunlu: true,
+        sebep: "İşe uygunluk için zorunlu",
+      },
+      {
+        belgeKodu: "11",
+        belgeAdi: "Diploma",
+        zorunlu: true,
+        sebep: "Eğitim seviyesi için zorunlu",
+      },
+      {
+        belgeKodu: "16",
+        belgeAdi: "İş Sözleşmesi",
+        zorunlu: true,
+        sebep: "Çalışma koşulları için zorunlu",
+      },
+      {
+        belgeKodu: "17",
+        belgeAdi: "SGK İşe Giriş Bildirgesi",
+        zorunlu: true,
+        sebep: "SGK bildirimi için zorunlu",
+      },
+      {
+        belgeKodu: "21",
+        belgeAdi: "Vesikalık Fotoğraf",
+        zorunlu: true,
+        sebep: "Kimlik kartı için zorunlu",
+      }
+    );
+
+    // Yaş bazlı belgeler
+    if (yas >= 18 && yas <= 65) {
+      belgeler.push({
+        belgeKodu: "22",
+        belgeAdi: "Askerlik Belgesi",
+        zorunlu: true,
+        sebep: "Askerlik durumu için zorunlu",
+      });
+    }
+
+    // Pozisyon bazlı belgeler
+    if (pozisyon.toLowerCase().includes("güvenlik")) {
+      belgeler.push(
+        {
+          belgeKodu: "19",
+          belgeAdi: "Çalışma İzni",
+          zorunlu: true,
+          sebep: "Güvenlik sektörü için zorunlu",
+        },
+        {
+          belgeKodu: "20",
+          belgeAdi: "İş Güvenliği Belgesi",
+          zorunlu: true,
+          sebep: "Güvenlik eğitimi için zorunlu",
+        }
+      );
+    }
+
+    if (pozisyon.toLowerCase().includes("şoför")) {
+      belgeler.push({
+        belgeKodu: "03",
+        belgeAdi: "Ehliyet",
+        zorunlu: true,
+        sebep: "Sürücülük için zorunlu",
+      });
+    }
+
+    if (pozisyon.toLowerCase().includes("muhasebe")) {
+      belgeler.push({
+        belgeKodu: "13",
+        belgeAdi: "Sertifika",
+        zorunlu: false,
+        sebep: "Muhasebe eğitimi için önerilen",
+      });
+    }
+
+    // Personel türü bazlı belgeler
+    if (personelTuru.toLowerCase().includes("evli")) {
+      belgeler.push({
+        belgeKodu: "23",
+        belgeAdi: "Evlilik Cüzdanı",
+        zorunlu: false,
+        sebep: "Evlilik durumu için önerilen",
+      });
+    }
+
+    if (personelTuru.toLowerCase().includes("çocuk")) {
+      belgeler.push({
+        belgeKodu: "24",
+        belgeAdi: "Doğum Belgesi",
+        zorunlu: false,
+        sebep: "Çocuk bilgisi için önerilen",
+      });
+    }
+
+    return belgeler;
+  }
+
+  // SGK Otomatik Belge Seçimi
+  getOtomatikBelgeSecimi(
+    personelTuru: string,
+    pozisyon: string,
+    yas: number
+  ): Array<{
+    belgeKodu: string;
+    belgeAdi: string;
+    zorunlu: boolean;
+    sebep: string;
+  }> {
+    const belgeler: Array<{
+      belgeKodu: string;
+      belgeAdi: string;
+      zorunlu: boolean;
+      sebep: string;
+    }> = [];
+
+    // Temel belgeler (herkes için)
+    belgeler.push(
+      {
+        belgeKodu: "01",
+        belgeAdi: "Nüfus Cüzdanı",
+        zorunlu: true,
+        sebep: "Kimlik doğrulama için zorunlu",
+      },
+      {
+        belgeKodu: "04",
+        belgeAdi: "İkametgah Belgesi",
+        zorunlu: true,
+        sebep: "Adres doğrulama için zorunlu",
+      },
+      {
+        belgeKodu: "05",
+        belgeAdi: "Adli Sicil Kaydı",
+        zorunlu: true,
+        sebep: "Güvenlik kontrolü için zorunlu",
+      },
+      {
+        belgeKodu: "06",
+        belgeAdi: "Sağlık Raporu",
+        zorunlu: true,
+        sebep: "İşe uygunluk için zorunlu",
+      },
+      {
+        belgeKodu: "11",
+        belgeAdi: "Diploma",
+        zorunlu: true,
+        sebep: "Eğitim seviyesi için zorunlu",
+      },
+      {
+        belgeKodu: "16",
+        belgeAdi: "İş Sözleşmesi",
+        zorunlu: true,
+        sebep: "Çalışma koşulları için zorunlu",
+      },
+      {
+        belgeKodu: "17",
+        belgeAdi: "SGK İşe Giriş Bildirgesi",
+        zorunlu: true,
+        sebep: "SGK bildirimi için zorunlu",
+      },
+      {
+        belgeKodu: "21",
+        belgeAdi: "Vesikalık Fotoğraf",
+        zorunlu: true,
+        sebep: "Kimlik kartı için zorunlu",
+      }
+    );
+
+    // Yaş bazlı belgeler
+    if (yas >= 18 && yas <= 65) {
+      belgeler.push({
+        belgeKodu: "22",
+        belgeAdi: "Askerlik Belgesi",
+        zorunlu: true,
+        sebep: "Askerlik durumu için zorunlu",
+      });
+    }
+
+    // Pozisyon bazlı belgeler
+    if (pozisyon.toLowerCase().includes("güvenlik")) {
+      belgeler.push(
+        {
+          belgeKodu: "19",
+          belgeAdi: "Çalışma İzni",
+          zorunlu: true,
+          sebep: "Güvenlik sektörü için zorunlu",
+        },
+        {
+          belgeKodu: "20",
+          belgeAdi: "İş Güvenliği Belgesi",
+          zorunlu: true,
+          sebep: "Güvenlik eğitimi için zorunlu",
+        }
+      );
+    }
+
+    if (pozisyon.toLowerCase().includes("şoför")) {
+      belgeler.push({
+        belgeKodu: "03",
+        belgeAdi: "Ehliyet",
+        zorunlu: true,
+        sebep: "Sürücülük için zorunlu",
+      });
+    }
+
+    if (pozisyon.toLowerCase().includes("muhasebe")) {
+      belgeler.push({
+        belgeKodu: "13",
+        belgeAdi: "Sertifika",
+        zorunlu: false,
+        sebep: "Muhasebe eğitimi için önerilen",
+      });
+    }
+
+    // Personel türü bazlı belgeler
+    if (personelTuru.toLowerCase().includes("evli")) {
+      belgeler.push({
+        belgeKodu: "23",
+        belgeAdi: "Evlilik Cüzdanı",
+        zorunlu: false,
+        sebep: "Evlilik durumu için önerilen",
+      });
+    }
+
+    if (personelTuru.toLowerCase().includes("çocuk")) {
+      belgeler.push({
+        belgeKodu: "24",
+        belgeAdi: "Doğum Belgesi",
+        zorunlu: false,
+        sebep: "Çocuk bilgisi için önerilen",
+      });
+    }
+
+    return belgeler;
+  }
+
+  // SGK İşten Çıkış Nedeni Validasyonu
+  validateIstenCikisNedeni(
+    cikisNedeni: string,
+    cikisTarihi: string,
+    girisTarihi: string,
+    calismaSuresi: number
+  ): {
+    isValid: boolean;
+    uyarilar: string[];
+    oneriler: string[];
+    sgkBildirimi: boolean;
+    belgeGerekli: boolean;
+    kategorisi: string;
+  } {
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+
+    try {
+      const cikisNedenleri = this.getIstenCikisNedenleri();
+      const secilenNeden = cikisNedenleri.find(
+        (neden) => neden.kod === cikisNedeni
+      );
+
+      if (!secilenNeden) {
+        uyarilar.push("Geçersiz işten çıkış nedeni kodu");
+        oneriler.push("Geçerli bir işten çıkış nedeni seçin");
+        return {
+          isValid: false,
+          uyarilar,
+          oneriler,
+          sgkBildirimi: false,
+          belgeGerekli: false,
+          kategorisi: "belirsiz",
+        };
+      }
+
+      const cikis = new Date(cikisTarihi);
+      const giris = new Date(girisTarihi);
+      const bugun = new Date();
+
+      // Tarih kontrolleri
+      if (cikis > bugun) {
+        uyarilar.push("Çıkış tarihi gelecekte olamaz");
+        oneriler.push("Çıkış tarihini kontrol edin");
+      }
+
+      if (cikis < giris) {
+        uyarilar.push("Çıkış tarihi giriş tarihinden önce olamaz");
+        oneriler.push("Tarihleri kontrol edin");
+      }
+
+      // Çalışma süresi kontrolleri
+      if (calismaSuresi <= 0) {
+        uyarilar.push("Çalışma süresi 0 veya negatif olamaz");
+        oneriler.push("Çalışma süresini kontrol edin");
+      }
+
+      // Kategori bazlı kontroller
+      switch (secilenNeden.kategori) {
+        case "istifa":
+          if (calismaSuresi < 1) {
+            uyarilar.push("İstifa için en az 1 gün çalışma gerekli");
+            oneriler.push("Çalışma süresini kontrol edin");
+          }
+          break;
+        case "fesih":
+          if (calismaSuresi < 1) {
+            uyarilar.push("Fesih için en az 1 gün çalışma gerekli");
+            oneriler.push("Çalışma süresini kontrol edin");
+          }
+          break;
+        case "emeklilik":
+          if (calismaSuresi < 365) {
+            uyarilar.push("Emeklilik için en az 1 yıl çalışma gerekli");
+            oneriler.push("Çalışma süresini kontrol edin");
+          }
+          break;
+        case "nakil":
+          if (calismaSuresi < 30) {
+            uyarilar.push("Nakil için en az 30 gün çalışma gerekli");
+            oneriler.push("Çalışma süresini kontrol edin");
+          }
+          break;
+        case "diger":
+          if (calismaSuresi < 1) {
+            uyarilar.push("Diğer nedenler için en az 1 gün çalışma gerekli");
+            oneriler.push("Çalışma süresini kontrol edin");
+          }
+          break;
+      }
+
+      // Özel durumlar
+      if (secilenNeden.kod === "17" && calismaSuresi < 5475) {
+        // 15 yıl
+        uyarilar.push("Yaşlılık emekliliği için en az 15 yıl çalışma gerekli");
+        oneriler.push("Çalışma süresini kontrol edin");
+      }
+
+      if (secilenNeden.kod === "18" && calismaSuresi < 1095) {
+        // 3 yıl
+        uyarilar.push("Malullük emekliliği için en az 3 yıl çalışma gerekli");
+        oneriler.push("Çalışma süresini kontrol edin");
+      }
+
+      if (secilenNeden.kod === "22" && calismaSuresi < 30) {
+        uyarilar.push("Aynı işveren nakil için en az 30 gün çalışma gerekli");
+        oneriler.push("Çalışma süresini kontrol edin");
+      }
+
+      return {
+        isValid: uyarilar.length === 0,
+        uyarilar,
+        oneriler,
+        sgkBildirimi: secilenNeden.sgkBildirimi,
+        belgeGerekli: secilenNeden.belgeGerekli,
+        kategorisi: secilenNeden.kategori,
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        uyarilar: ["İşten çıkış nedeni validasyon hatası"],
+        oneriler: ["Verileri kontrol edin"],
+        sgkBildirimi: false,
+        belgeGerekli: false,
+        kategorisi: "belirsiz",
+      };
+    }
+  }
+
+  // SGK Kısmi Süreli Çalışma Validasyonu
+  validateKismiSureliCalisma(girisTarihi: string, cikisTarihi: string): any {
+    const calismaGunu = this.calculateCalismaGunu(girisTarihi, cikisTarihi);
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+    let calismaTuru = "tam_sureli";
+
+    if (calismaGunu >= 1 && calismaGunu <= 29) {
+      calismaTuru = "kismi_sureli";
+      uyarilar.push(
+        `${calismaGunu} günlük çalışma süresi kısmi süreli çalışma kapsamında`
+      );
+
+      if (calismaGunu <= 7) {
+        oneriler.push("Geçici işçi statüsü uygun olabilir");
+      } else if (calismaGunu <= 14) {
+        oneriler.push("Kısa dönemli çalışma statüsü uygun olabilir");
+      } else {
+        oneriler.push("Orta dönemli çalışma statüsü uygun olabilir");
+      }
+    }
+
+    return {
+      isValid: true,
+      uyarilar,
+      oneriler,
+      calismaGunu,
+      calismaTuru,
+    };
+  }
+
+  // SGK Dönem Tarihleri Validasyonu
+  validateDonemTarihleri(
+    baslangicTarihi: string,
+    bitisTarihi: string,
+    isyeriTuru: string
+  ): any {
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+
+    if (!baslangicTarihi || !bitisTarihi) {
+      return { isValid: true, uyarilar, oneriler };
+    }
+
+    const donemTarihleri = this.calculateDonemTarihleri(
+      baslangicTarihi,
+      isyeriTuru
+    );
+
+    if (isyeriTuru === "ozel") {
+      oneriler.push("Özel işyeri: Dönem ayın 1'inde başlar");
+    } else {
+      oneriler.push("Resmi işyeri: Dönem ayın 15'inde başlar");
+    }
+
+    return {
+      isValid: true,
+      uyarilar,
+      oneriler,
+      donemTarihleri,
+    };
+  }
+
+  // SGK Eksik Gün Nedeni Validasyonu
+  validateEksikGunNedeni(
+    eksikGunNedeni: string,
+    baslangicTarihi: string,
+    bitisTarihi: string,
+    calismaGunu: number
+  ): any {
+    const uyarilar: string[] = [];
+    const oneriler: string[] = [];
+
+    if (!eksikGunNedeni || !baslangicTarihi || !bitisTarihi) {
+      return {
+        isValid: true,
+        uyarilar,
+        oneriler,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      };
+    }
+
+    const nedenler = this.getEksikGunNedenleri();
+    const secilenNeden = nedenler.find((n) => n.kod === eksikGunNedeni);
+
+    if (!secilenNeden) {
+      return {
+        isValid: false,
+        uyarilar: ["Geçersiz eksik gün nedeni"],
+        oneriler,
+        sgkBildirimi: false,
+        belgeGerekli: false,
+      };
+    }
+
+    if (calismaGunu > secilenNeden.maxGun) {
+      uyarilar.push(`${secilenNeden.maxGun} günden fazla eksik gün bildirimi`);
+      oneriler.push("SGK bildirimi ve belge gerekli");
+    }
+
+    return {
+      isValid: true,
+      uyarilar,
+      oneriler,
+      sgkBildirimi: secilenNeden.sgkBildirimi,
+      belgeGerekli: secilenNeden.belgeGerekli,
+    };
+  }
+
+  // SGK Şifreleme Fonksiyonları
+  encryptData(data: string): string {
+    // Basit Base64 şifreleme (gerçek uygulamada daha güvenli şifreleme kullanılmalı)
+    return btoa(data);
+  }
+
+  decryptData(encryptedData: string): string {
+    // Basit Base64 şifre çözme
+    return atob(encryptedData);
+  }
+
+  // SGK Dönem Türleri
+  getDonemTurleri() {
+    return {
+      ozel: [
+        {
+          kod: "OZEL",
+          aciklama: "Özel İşyeri Dönemi",
+          baslangic: "Ayın 1'i",
+          bitis: "Ayın sonu",
+        },
+      ],
+      resmi: [
+        {
+          kod: "RESMI",
+          aciklama: "Resmi İşyeri Dönemi",
+          baslangic: "Ayın 15'i",
+          bitis: "Sonraki ayın 14'ü",
+        },
+      ],
+    };
+  }
+}
+
+export const sgkService = new SgkService();
