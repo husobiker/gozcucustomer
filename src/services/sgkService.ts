@@ -1110,17 +1110,17 @@ class SgkService {
       key: "./ssl/key.pem",
       wildcardSupport: true,
       supportedDomains: [
-        "localhost:3000",
-        "*.localhost:3000",
-        "ahmet.localhost:3000",
-        "mehmet.localhost:3000",
-        "ali.localhost:3000",
+        "gozcu360.com",
+        "*.gozcu360.com",
+        "ahmet.gozcu360.com",
+        "mehmet.gozcu360.com",
+        "ali.gozcu360.com",
       ],
       instructions: [
         "1. npm run start:https komutu ile çalıştırın",
         "2. Tarayıcıda 'Gelişmiş' > 'localhost'a git' tıklayın",
         "3. Self-signed sertifika uyarısını kabul edin",
-        "4. Alt alan adları (*.localhost) desteklenir",
+        "4. Alt alan adları (*.gozcu360.com) desteklenir",
         "5. SGK testleri HTTPS üzerinden çalışacak",
       ],
     };

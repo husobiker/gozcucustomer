@@ -65,9 +65,9 @@ export const TenantProvider: React.FC<TenantProviderProps> = ({ children }) => {
           subdomain = "";
         }
       } else {
-        // For production, subdomain is before .safebase.com
+        // For production, subdomain is before .gozcu360.com
         const parts = hostname.split(".");
-        if (parts.length > 1 && parts[1] === "safebase" && parts[2] === "com") {
+        if (parts.length > 1 && parts[1] === "gozcu360" && parts[2] === "com") {
           subdomain = parts[0];
         } else {
           subdomain = "";

@@ -305,7 +305,7 @@ const AppContent: React.FC = () => {
     return "U";
   };
 
-  // SuperAdmin dashboard removed - only subdomain.localhost access
+  // SuperAdmin dashboard removed - only subdomain.gozcu360.com access
 
   if (loading) {
     return (
@@ -350,7 +350,7 @@ const AppContent: React.FC = () => {
           ile erişmeyi deneyin.
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.8 }}>
-          Örnek: http://[subdomain].localhost:3006
+          Örnek: http://[subdomain].gozcu360.com
         </Typography>
       </Box>
     );
