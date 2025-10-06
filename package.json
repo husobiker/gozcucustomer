@@ -1,7 +1,7 @@
 {
-  "name": "admin-panel",
+  "name": "gozcu360-admin",
   "version": "1.0.0",
-  "description": "SafeBase Admin Panel",
+  "description": "Gozcu360 Admin Panel",
   "private": true,
   "type": "module",
   "dependencies": {

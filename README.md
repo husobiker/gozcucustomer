@@ -1,4 +1,4 @@
-# SafeBase Admin Panel
+# Gozcu360 Admin Panel
 
 Güvenlik yönetim platformu için kapsamlı admin paneli.
 
@@ -56,22 +56,26 @@ admin-panel/
 ## 🚀 Kurulum
 
 1. **Bağımlılıkları yükle:**
+
 ```bash
 npm install
 ```
 
 2. **Environment değişkenlerini ayarla:**
+
 ```bash
 cp env.example .env
 # .env dosyasını düzenle
 ```
 
 3. **Geliştirme sunucusunu başlat:**
+
 ```bash
 npm start
 ```
 
 4. **Production build:**
+
 ```bash
 npm run build
 ```
@@ -107,13 +111,13 @@ Detaylı dokümantasyon için `docs/` klasörüne bakın:
 
 ```bash
 # PM2 ile başlat
-pm2 start npm --name "admin-panel" -- start -- --port 3001
+pm2 start npm --name "gozcu360-admin" -- start -- --port 3001
 
 # PM2 durum kontrolü
 pm2 status
 
 # PM2 logları
-pm2 logs admin-panel
+pm2 logs gozcu360-admin
 ```
 
 ### Nginx Konfigürasyonu
@@ -122,7 +126,7 @@ pm2 logs admin-panel
 server {
     listen 80;
     server_name admin.gozcu360.com;
-    
+
     location / {
         proxy_pass http://localhost:3001;
         proxy_set_header Host $host;
@@ -135,6 +139,7 @@ server {
 ## 📞 Destek
 
 Sorularınız için:
+
 - **Email**: info@gozcu360.com
 - **Website**: https://gozcu360.com
 
